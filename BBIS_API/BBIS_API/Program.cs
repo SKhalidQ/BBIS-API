@@ -14,6 +14,24 @@ namespace BBIS_API
     {
         public static void Main(string[] args)
         {
+            #region Force Enter Product
+
+            //DebugDatabase();
+
+            #endregion
+
+            CreateHostBuilder(args).Build().Run();
+
+        }
+
+        public static IHostBuilder CreateHostBuilder(string[] args) => Host.CreateDefaultBuilder(args)
+            .ConfigureWebHostDefaults(webBuilder =>
+            {
+                webBuilder.UseStartup<Startup>();
+            });
+
+        public static void DebugDatabase()
+        {
             using (var ctx = new ProductContext())
             {
                 ProductItem Product = new ProductItem()
@@ -30,15 +48,6 @@ namespace BBIS_API
                 ctx.ProductItems.Add(Product);
                 ctx.SaveChanges();
             }
-
-
-            CreateHostBuilder(args).Build().Run();
         }
-
-        public static IHostBuilder CreateHostBuilder(string[] args) => Host.CreateDefaultBuilder(args)
-            .ConfigureWebHostDefaults(webBuilder =>
-            {
-                webBuilder.UseStartup<Startup>();
-            });
     }
 }

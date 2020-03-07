@@ -14,10 +14,5 @@ namespace BBIS_API.Models
 
         public DbSet<ProductItem> ProductItems { get; set; }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.UseSqlServer("Server = (localDb)\\BeerBottleInventoryServer; Database = BeerBottleInventoryDb");
-            base.OnConfiguring(optionsBuilder);
-        }
     }
 }

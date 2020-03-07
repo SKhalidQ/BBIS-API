@@ -2,7 +2,7 @@
 
 namespace BBIS_API.Migrations
 {
-    public partial class InitialCreate : Migration
+    public partial class ProductTable : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

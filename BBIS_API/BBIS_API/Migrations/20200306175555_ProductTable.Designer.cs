@@ -9,8 +9,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BBIS_API.Migrations
 {
     [DbContext(typeof(ProductContext))]
-    [Migration("20200305154931_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20200306175555_ProductTable")]
+    partial class ProductTable
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
