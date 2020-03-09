@@ -1,12 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using BBIS_API.Models;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Hosting;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using BBIS_API.Models;
+using System.Linq;
+using System;
 
 namespace BBIS_API
 {
@@ -14,7 +14,7 @@ namespace BBIS_API
     {
         public static void Main(string[] args)
         {
-            #region Force Enter Product
+            #region Force Enter Data into Table
 
             //DebugDatabase();
 
@@ -25,14 +25,13 @@ namespace BBIS_API
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) => Host.CreateDefaultBuilder(args)
-            .ConfigureWebHostDefaults(webBuilder =>
-            {
+            .ConfigureWebHostDefaults(webBuilder =>{
                 webBuilder.UseStartup<Startup>();
             });
 
         public static void DebugDatabase()
         {
-            using (var ctx = new ProductContext())
+            using (var context = new ProductContext())
             {
                 ProductItem Product = new ProductItem()
                 {
@@ -45,8 +44,8 @@ namespace BBIS_API
                     SellPrice = 1.75,
                     Discount = 0
                 };
-                ctx.ProductItems.Add(Product);
-                ctx.SaveChanges();
+                context.ProductItems.Add(Product);
+                context.SaveChanges();
             }
         }
     }

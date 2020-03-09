@@ -18,5 +18,7 @@ namespace BBIS_API.Models
         public int StockAmount { get; set; }
         public double SellPrice { get; set; }
         public int Discount { get; set; }
+        public ICollection<OrderItem> OrderItems { get; set; }
+        public ProductItem() { }
     }
 }
