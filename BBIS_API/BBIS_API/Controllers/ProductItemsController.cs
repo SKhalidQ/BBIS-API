@@ -13,9 +13,9 @@ namespace BBIS_API.Controllers
     [ApiController]
     public class ProductItemsController : ControllerBase
     {
-        private readonly ProductContext _context;
+        private readonly DatabaseContext _context;
 
-        public ProductItemsController(ProductContext context)
+        public ProductItemsController(DatabaseContext context)
         {
             _context = context;
         }

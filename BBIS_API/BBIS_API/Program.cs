@@ -31,7 +31,7 @@ namespace BBIS_API
 
         public static void DebugDatabase()
         {
-            using (var context = new ProductContext())
+            using (var context = new DatabaseContext())
             {
                 ProductItem Product = new ProductItem()
                 {

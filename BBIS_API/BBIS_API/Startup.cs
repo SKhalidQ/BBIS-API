@@ -28,7 +28,7 @@ namespace BBIS_API
         public void ConfigureServices(IServiceCollection services)
         {
             //services.AddDbContext<ProductContext>(opt => opt.UseInMemoryDatabase("ProductList"));
-            services.AddDbContext<ProductContext>(opt => opt.UseSqlServer(Configuration.GetConnectionString("localDatabase")));
+            services.AddDbContext<DatabaseContext>(opt => opt.UseSqlServer(Configuration.GetConnectionString("localDatabase")));
             services.AddControllers();
         }
 
