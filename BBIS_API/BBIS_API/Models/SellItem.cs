@@ -12,6 +12,9 @@ namespace BBIS_API.Models
         public long SellID { get; set; }
         
         [Required]
+        public ProductItem ProductID { get; set; }
+        
+        [Required]
         [Range(0.01, 999.99)]
         public int SellAmount { get; set; }
         
@@ -24,9 +27,6 @@ namespace BBIS_API.Models
         
         [Required]
         public DateTime SellDate { get; private set; }
-        
-        [Required]
-        public ProductItem ProductID { get; }
         
         public SellItem() { SellDate = DateTime.Now; }
     }

@@ -60,7 +60,7 @@ namespace BBIS_API.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!OrderItemExists(id))
+                if (!OrderIDExists(id))
                 {
                     return NotFound();
                 }
@@ -79,10 +79,18 @@ namespace BBIS_API.Controllers
         [HttpPost]
         public async Task<ActionResult<OrderItem>> PostOrderItem(OrderItem orderItem)
         {
-            _context.OrderItems.Add(orderItem);
-            await _context.SaveChangesAsync();
+            if (OrderExists(orderItem))
+            {
+                ModelState.AddModelError("Order", "This order already exists");
+                return BadRequest("This order already exists");
+            }
+            else
+            {
+                _context.OrderItems.Add(orderItem);
+                await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetOrderItem", new { id = orderItem.OrderID }, orderItem);
+                return CreatedAtAction("GetOrderItem", new { id = orderItem.OrderID }, orderItem);
+            }
         }
 
         // DELETE: api/OrderItems/5
@@ -101,9 +109,14 @@ namespace BBIS_API.Controllers
             return orderItem;
         }
 
-        private bool OrderItemExists(long id)
+        private bool OrderIDExists(long id)
         {
             return _context.OrderItems.Any(e => e.OrderID == id);
         }
+        private bool OrderExists(OrderItem OrderItem)
+        {
+            return _context.OrderItems.Any(e => e.OrderDate == OrderItem.OrderDate);
+        }
+
     }
 }
