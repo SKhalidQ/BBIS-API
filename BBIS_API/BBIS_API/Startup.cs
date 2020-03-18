@@ -22,6 +22,8 @@ namespace BBIS_API
             Configuration = configuration;
         }
 
+        readonly string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+
         public IConfiguration Configuration { get; }
 
         readonly string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
