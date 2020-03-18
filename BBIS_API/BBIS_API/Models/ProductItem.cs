@@ -10,15 +10,35 @@ namespace BBIS_API.Models
     {
         [Key]
         public long ProductId { get; set; }
+
+        [Required]
+        [StringLength(50)]
         public string Brand { get; set; }
+        
+        [Required]
+        [StringLength(300)]
         public string Flavour { get; set; }
+        
+        [Required]
         public bool Alcoholic { get; set; }
+        
+        [Required]
+        [StringLength(10)]
         public string ContainerType { get; set; }
+        
+        [Required]
         public bool Returnable { get; set; }
+        
+        [Range(0, 999)]
         public int StockAmount { get; set; }
+        
+        [Required]
+        [Range(0.01, 999.99)]
         public double SellPrice { get; set; }
+        
+        [Required]
         public int Discount { get; set; }
-        public ICollection<OrderItem> OrderItems { get; set; }
+        
         public ProductItem() { }
     }
 }

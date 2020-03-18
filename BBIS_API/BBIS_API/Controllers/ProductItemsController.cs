@@ -37,7 +37,7 @@ namespace BBIS_API.Controllers
 
             if (productItem == null)
             {
-                return NotFound();
+                return NotFound("Product not found");
             }
 
             return productItem;
@@ -52,7 +52,7 @@ namespace BBIS_API.Controllers
         {
             if (id != productItem.ProductId)
             {
-                return BadRequest();
+                return BadRequest("The requested product does not exist");
             }
 
             _context.Entry(productItem).State = EntityState.Modified;
@@ -63,9 +63,9 @@ namespace BBIS_API.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!ProductItemExists(id))
+                if (!ProductIDExists(id))
                 {
-                    return NotFound();
+                    return NotFound("Product not found");
                 }
                 else
                 {
@@ -82,11 +82,20 @@ namespace BBIS_API.Controllers
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPost]
         public async Task<ActionResult<ProductItem>> PostProductItem(ProductItem productItem)
-        {
-            _context.ProductItems.Add(productItem);
-            await _context.SaveChangesAsync();
+        {          
+            if(ProductExists(productItem))
+            {
+                ModelState.AddModelError("Brand" + "Flavour", "This product already exists");
+                return BadRequest("This product already exists");
+            }
+            else
+            {
+                _context.ProductItems.Add(productItem);
+                await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetProductItem", new { id = productItem.ProductId }, productItem);
+                return CreatedAtAction("GetProductItem", new { id = productItem.ProductId }, productItem);
+            }
+
         }
 
         // DELETE: api/ProductItems/5
@@ -106,9 +115,16 @@ namespace BBIS_API.Controllers
             return productItem;
         }
 
-        private bool ProductItemExists(long id)
+        private bool ProductIDExists(long id)
         {
             return _context.ProductItems.Any(e => e.ProductId == id);
+        }
+
+        private bool ProductExists(ProductItem productItem)
+        {
+        
+            return _context.ProductItems.Any(x => x.Brand == productItem.Brand)
+                && _context.ProductItems.Any(y => y.Flavour == productItem.Flavour);
         }
     }
 }
