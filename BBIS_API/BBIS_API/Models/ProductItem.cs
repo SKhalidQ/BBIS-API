@@ -16,7 +16,7 @@ namespace BBIS_API.Models
         public string Brand { get; set; }
         
         [Required]
-        [StringLength(300)]
+        [StringLength(60)]
         public string Flavour { get; set; }
         
         [Required]
@@ -38,7 +38,11 @@ namespace BBIS_API.Models
         
         [Required]
         public int Discount { get; set; }
-        
+
+        public ICollection<SellItem> SalesList { get; set; }
+
+        public ICollection<OrderItem> OrdersList { get; set; }
+
         public ProductItem() { }
     }
 }

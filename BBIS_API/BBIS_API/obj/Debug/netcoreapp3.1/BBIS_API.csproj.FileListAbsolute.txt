@@ -142,3 +142,11 @@ C:\Users\skq09\source\repos\BBIS_API\BBIS_API\bin\Debug\netcoreapp3.1\zh-Hant\Mi
 C:\Users\skq09\source\repos\BBIS_API\BBIS_API\obj\Debug\netcoreapp3.1\BBIS_API.MvcApplicationPartsAssemblyInfo.cache
 C:\Users\skq09\source\repos\BBIS_API\BBIS_API\obj\Debug\netcoreapp3.1\BBIS_API.dll
 C:\Users\skq09\source\repos\BBIS_API\BBIS_API\obj\Debug\netcoreapp3.1\BBIS_API.pdb
+C:\Users\skq09\Documents\GitHub\BBIS-API\BBIS_API\BBIS_API\obj\Debug\netcoreapp3.1\BBIS_API.csprojAssemblyReference.cache
+C:\Users\skq09\Documents\GitHub\BBIS-API\BBIS_API\BBIS_API\obj\Debug\netcoreapp3.1\staticwebassets\BBIS_API.StaticWebAssets.Manifest.cache
+C:\Users\skq09\Documents\GitHub\BBIS-API\BBIS_API\BBIS_API\obj\Debug\netcoreapp3.1\staticwebassets\BBIS_API.StaticWebAssets.xml
+C:\Users\skq09\Documents\GitHub\BBIS-API\BBIS_API\BBIS_API\obj\Debug\netcoreapp3.1\BBIS_API.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\skq09\Documents\GitHub\BBIS-API\BBIS_API\BBIS_API\obj\Debug\netcoreapp3.1\BBIS_API.AssemblyInfoInputs.cache
+C:\Users\skq09\Documents\GitHub\BBIS-API\BBIS_API\BBIS_API\obj\Debug\netcoreapp3.1\BBIS_API.AssemblyInfo.cs
+C:\Users\skq09\Documents\GitHub\BBIS-API\BBIS_API\BBIS_API\obj\Debug\netcoreapp3.1\BBIS_API.dll
+C:\Users\skq09\Documents\GitHub\BBIS-API\BBIS_API\BBIS_API\obj\Debug\netcoreapp3.1\BBIS_API.pdb
