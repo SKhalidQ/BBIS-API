@@ -85,7 +85,7 @@ namespace BBIS_API.Controllers
         {          
             if(ProductExists(productItem))
             {
-                ModelState.AddModelError("Brand" + "Flavour", "This product already exists");
+                ModelState.AddModelError("Brand" + "Flavour" + "ContainerType", "This product already exists");
                 return BadRequest("This product already exists");
             }
             else
@@ -122,9 +122,9 @@ namespace BBIS_API.Controllers
 
         private bool ProductExists(ProductItem productItem)
         {
-        
             return _context.ProductItems.Any(x => x.Brand == productItem.Brand)
-                && _context.ProductItems.Any(y => y.Flavour == productItem.Flavour);
+                && _context.ProductItems.Any(y => y.Flavour == productItem.Flavour)
+                && _context.ProductItems.Any(z => z.ContainerType == productItem.ContainerType);
         }
     }
 }

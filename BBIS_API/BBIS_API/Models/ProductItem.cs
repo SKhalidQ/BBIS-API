@@ -39,6 +39,7 @@ namespace BBIS_API.Models
         [Required]
         public int Discount { get; set; }
 
+
         public ICollection<SellItem> SalesList { get; set; }
 
         public ICollection<OrderItem> OrdersList { get; set; }
