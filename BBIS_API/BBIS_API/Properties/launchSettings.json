@@ -12,7 +12,7 @@
     "IIS Express": {
       "commandName": "IISExpress",
       "launchBrowser": true,
-      "launchUrl": "api/ProductItems",
+      "launchUrl": "api/Products/Status",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
@@ -20,7 +20,7 @@
     "BBIS_API": {
       "commandName": "Project",
       "launchBrowser": true,
-      "launchUrl": "api/ProductItems",
+      "launchUrl": "api/Products/Status",
       "applicationUrl": "https://localhost:5001;http://localhost:5000",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"

@@ -9,7 +9,7 @@ using BBIS_API.Models;
 
 namespace BBIS_API.Controllers
 {
-    [Route("api/OrderItems")]
+    [Route("api/[controller]/[action]")]
     [ApiController]
     public class OrderItemsController : ControllerBase
     {
@@ -20,16 +20,10 @@ namespace BBIS_API.Controllers
             _context = context;
         }
 
-        // GET: api/OrderItems
+        #region HTTPGet
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<OrderItem>>> GetOrderItems()
-        {
-            return await _context.OrderItems.ToListAsync();
-        }
-
-        // GET: api/OrderItems/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<OrderItem>> GetOrderItem(long id)
+        [ActionName("GetOrder")]
+        public async Task<ActionResult<OrderItem>> GetOrderItem([FromBody]long id)
         {
             var orderItem = await _context.OrderItems.FindAsync(id);
 
@@ -41,26 +35,26 @@ namespace BBIS_API.Controllers
             return orderItem;
         }
 
-        // PUT: api/OrderItems/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for
-        // more details see https://aka.ms/RazorPagesCRUD.
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutOrderItem(long id, OrderItem orderItem)
+        [HttpGet]
+        [ActionName("ListOrders")]
+        public async Task<ActionResult<IEnumerable<OrderItem>>> GetOrderItems()
         {
-            if (id != orderItem.OrderID)
-            {
-                return BadRequest();
-            }
+            return await _context.OrderItems.ToListAsync();
+        }
+        #endregion
 
-            _context.Entry(orderItem).State = EntityState.Modified;
-
+        #region HTTPPut
+        [HttpPut]
+        [ActionName("UpdateOrder")]
+        public async Task<IActionResult> PutOrderItem(/*[FromBody]long id,*/ OrderItem orderItem)
+        {
             try
             {
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!OrderIDExists(id))
+                if (!OrderIDExists(orderItem.Product.ProductId))
                 {
                     return NotFound();
                 }
@@ -70,32 +64,76 @@ namespace BBIS_API.Controllers
                 }
             }
 
-            return NoContent();
-        }
+            return StatusCode(200, "Done");
 
-        // POST: api/OrderItems
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for
-        // more details see https://aka.ms/RazorPagesCRUD.
+            #region Old
+            //if (id != orderItem.OrderID)
+            //{
+            //    return BadRequest();
+            //}
+
+            //_context.Entry(orderItem).State = EntityState.Modified;
+
+            //try
+            //{
+            //    await _context.SaveChangesAsync();
+            //}
+            //catch (DbUpdateConcurrencyException)
+            //{
+            //    if (!OrderIDExists(id))
+            //    {
+            //        return NotFound();
+            //    }
+            //    else
+            //    {
+            //        throw;
+            //    }
+            //}
+
+            //return NoContent();
+            #endregion
+        }
+        #endregion
+
+        #region HTTPPost
         [HttpPost]
-        public async Task<ActionResult<OrderItem>> PostOrderItem(OrderItem orderItem)
+        [ActionName("AddOrder")]
+        public async Task<ActionResult<OrderItem>> PostOrderItem([FromBody]OrderItem orderItem, [FromQuery] long ProductId)
         {
-            if (OrderExists(orderItem))
+            var Product = ProductExists(ProductId);
+
+            if (Product)
             {
-                ModelState.AddModelError("Order", "This order already exists");
-                return BadRequest("This order already exists");
-            }
-            else
-            {
-                _context.OrderItems.Add(orderItem);
+                var Order = OrderExists(orderItem);
+                var GetProduct = _context.ProductItems.Find(ProductId);
+
+                if (Order)
+                {
+                    ModelState.AddModelError("Order", "This order already exists");
+                    return BadRequest("This order already exists");
+                }
+
+                OrderItem newOrder = new OrderItem
+                {
+                    StockAmount = orderItem.StockAmount,
+                    WarehousePrice = orderItem.WarehousePrice,
+                    Product = GetProduct
+                };
+
+                _context.OrderItems.Add(newOrder);
                 await _context.SaveChangesAsync();
 
-                return CreatedAtAction("GetOrderItem", new { id = orderItem.OrderID }, orderItem);
+                //return CreatedAtAction("GetOrderItem", new { id = ProductId }, orderItem);
+                return Ok(newOrder);
             }
+                return BadRequest();
         }
+        #endregion
 
-        // DELETE: api/OrderItems/5
-        [HttpDelete("{id}")]
-        public async Task<ActionResult<OrderItem>> DeleteOrderItem(long id)
+        #region HTTPDelete
+        [HttpDelete]
+        [ActionName("EliminateOrder")]
+        public async Task<ActionResult<OrderItem>> DeleteOrderItem([FromBody]long id)
         {
             var orderItem = await _context.OrderItems.FindAsync(id);
             if (orderItem == null)
@@ -108,7 +146,9 @@ namespace BBIS_API.Controllers
 
             return orderItem;
         }
+        #endregion
 
+        #region Check if Exist
         private bool OrderIDExists(long id)
         {
             return _context.OrderItems.Any(e => e.OrderID == id);
@@ -117,6 +157,11 @@ namespace BBIS_API.Controllers
         {
             return _context.OrderItems.Any(e => e.OrderDate == OrderItem.OrderDate);
         }
+        private bool ProductExists(long id)
+        {
+            return _context.ProductItems.Any(e => e.ProductId == id);
+        }
+        #endregion
 
     }
 }

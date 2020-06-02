@@ -286,3 +286,5 @@ C:\Users\skq09\Documents\GitHub\BBIS-API\BBIS_API\BBIS_API\bin\Debug\netcoreapp3
 C:\Users\skq09\Documents\GitHub\BBIS-API\BBIS_API\BBIS_API\bin\Debug\netcoreapp3.1\runtimes\win\lib\netstandard2.0\System.Security.Cryptography.ProtectedData.dll
 C:\Users\skq09\Documents\GitHub\BBIS-API\BBIS_API\BBIS_API\obj\Debug\netcoreapp3.1\BBIS_API.RazorTargetAssemblyInfo.cache
 C:\Users\skq09\Documents\GitHub\BBIS-API\BBIS_API\BBIS_API\obj\Debug\netcoreapp3.1\BBIS_API.csproj.CopyComplete
+C:\Users\skq09\Documents\GitHub\BBIS-API\BBIS_API\BBIS_API\obj\Debug\netcoreapp3.1\BBIS_API.csproj.CoreCompileInputs.cache
+C:\Users\skq09\Documents\GitHub\BBIS-API\BBIS_API\BBIS_API\obj\Debug\netcoreapp3.1\BBIS_API.genruntimeconfig.cache

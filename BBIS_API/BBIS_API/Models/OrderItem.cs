@@ -10,7 +10,6 @@ namespace BBIS_API.Models
     {
         [Key]
         public long OrderID { get; set; }
-
        
         [Required]
         [Range(0.01, 999.99)]
@@ -23,10 +22,8 @@ namespace BBIS_API.Models
         [Required]
         public DateTime OrderDate { get; private set; }
 
-        public long ProductID { get; set; }
-        
-        public ProductItem ProductObj { get; set; }
+        public virtual ProductItem Product { get; set; }
 
-        public OrderItem() { OrderDate = DateTime.Now; }
+        public OrderItem() { OrderDate = DateTime.Now.Date; }
     }
 }

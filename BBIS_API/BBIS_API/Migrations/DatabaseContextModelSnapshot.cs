@@ -29,10 +29,7 @@ namespace BBIS_API.Migrations
                     b.Property<DateTime>("OrderDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<long>("ProductID")
-                        .HasColumnType("bigint");
-
-                    b.Property<long?>("ProductObjProductId")
+                    b.Property<long?>("ProductId")
                         .HasColumnType("bigint");
 
                     b.Property<int>("StockAmount")
@@ -43,7 +40,7 @@ namespace BBIS_API.Migrations
 
                     b.HasKey("OrderID");
 
-                    b.HasIndex("ProductObjProductId");
+                    b.HasIndex("ProductId");
 
                     b.ToTable("OrderItems");
                 });
@@ -68,8 +65,8 @@ namespace BBIS_API.Migrations
                         .HasColumnType("nvarchar(10)")
                         .HasMaxLength(10);
 
-                    b.Property<int>("Discount")
-                        .HasColumnType("int");
+                    b.Property<double>("Discount")
+                        .HasColumnType("float");
 
                     b.Property<string>("Flavour")
                         .IsRequired()
@@ -124,9 +121,9 @@ namespace BBIS_API.Migrations
 
             modelBuilder.Entity("BBIS_API.Models.OrderItem", b =>
                 {
-                    b.HasOne("BBIS_API.Models.ProductItem", "ProductObj")
+                    b.HasOne("BBIS_API.Models.ProductItem", "Product")
                         .WithMany("OrdersList")
-                        .HasForeignKey("ProductObjProductId");
+                        .HasForeignKey("ProductId");
                 });
 
             modelBuilder.Entity("BBIS_API.Models.SellItem", b =>

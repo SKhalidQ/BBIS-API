@@ -37,13 +37,11 @@ namespace BBIS_API.Models
         public double SellPrice { get; set; }
         
         [Required]
-        public int Discount { get; set; }
-
-
+        [Range(0, 100.00)]
+        public double Discount { get; set; }
+        
         public ICollection<SellItem> SalesList { get; set; }
 
         public ICollection<OrderItem> OrdersList { get; set; }
-
-        public ProductItem() { }
     }
 }
