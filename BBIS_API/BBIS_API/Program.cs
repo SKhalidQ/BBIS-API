@@ -41,7 +41,7 @@ namespace BBIS_API
                     ContainerType = "Bottle",
                     Returnable = true,
                     StockAmount = 125,
-                    SellPrice = 1.75,
+                    SellPrice = Convert.ToDecimal(0.12),
                     Discount = 0
                 };
                 context.ProductItems.Add(Product);

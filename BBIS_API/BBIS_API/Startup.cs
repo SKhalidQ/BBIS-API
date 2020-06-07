@@ -22,23 +22,11 @@ namespace BBIS_API
             Configuration = configuration;
         }
 
-        readonly string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
-
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddCors(options =>
-            {
-               options.AddPolicy(MyAllowSpecificOrigins, builder =>
-               {
-                  builder.WithOrigins("http://localhost:5003", "http://localhost:4200")
-                  .AllowAnyOrigin()
-                  .AllowAnyHeader();
-               });
-            });
-
             //services.AddDbContext<ProductContext>(opt => opt.UseInMemoryDatabase("ProductList"));
             services.AddDbContext<DatabaseContext>(opt => opt.UseSqlServer(Configuration.GetConnectionString("localDatabase")));
             services.AddControllers();
@@ -52,7 +40,12 @@ namespace BBIS_API
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseCors(MyAllowSpecificOrigins);
+            app.UseCors(options =>
+            {
+                options.AllowAnyOrigin();
+                options.AllowAnyMethod();
+                options.AllowAnyHeader();
+            });
 
             app.UseHttpsRedirection();
 

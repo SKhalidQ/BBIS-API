@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BBIS_API.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20200409192848_Mig1")]
+    [Migration("20200607154350_Mig1")]
     partial class Mig1
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -31,21 +31,18 @@ namespace BBIS_API.Migrations
                     b.Property<DateTime>("OrderDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<long>("ProductID")
-                        .HasColumnType("bigint");
-
-                    b.Property<long?>("ProductObjProductId")
+                    b.Property<long?>("ProductId")
                         .HasColumnType("bigint");
 
                     b.Property<int>("StockAmount")
                         .HasColumnType("int");
 
-                    b.Property<double>("WarehousePrice")
-                        .HasColumnType("float");
+                    b.Property<decimal>("WarehousePrice")
+                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("OrderID");
 
-                    b.HasIndex("ProductObjProductId");
+                    b.HasIndex("ProductId");
 
                     b.ToTable("OrderItems");
                 });
@@ -70,8 +67,8 @@ namespace BBIS_API.Migrations
                         .HasColumnType("nvarchar(10)")
                         .HasMaxLength(10);
 
-                    b.Property<double>("Discount")
-                        .HasColumnType("float");
+                    b.Property<int>("Discount")
+                        .HasColumnType("int");
 
                     b.Property<string>("Flavour")
                         .IsRequired()
@@ -81,8 +78,8 @@ namespace BBIS_API.Migrations
                     b.Property<bool>("Returnable")
                         .HasColumnType("bit");
 
-                    b.Property<double>("SellPrice")
-                        .HasColumnType("float");
+                    b.Property<decimal>("SellPrice")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("StockAmount")
                         .HasColumnType("int");
@@ -102,9 +99,6 @@ namespace BBIS_API.Migrations
                     b.Property<bool>("DiscountApplied")
                         .HasColumnType("bit");
 
-                    b.Property<long>("ProductID")
-                        .HasColumnType("bigint");
-
                     b.Property<long?>("ProductObjProductId")
                         .HasColumnType("bigint");
 
@@ -114,8 +108,8 @@ namespace BBIS_API.Migrations
                     b.Property<DateTime>("SellDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<double>("SellPriceTotal")
-                        .HasColumnType("float");
+                    b.Property<decimal>("SellPriceTotal")
+                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("SellID");
 
@@ -126,9 +120,9 @@ namespace BBIS_API.Migrations
 
             modelBuilder.Entity("BBIS_API.Models.OrderItem", b =>
                 {
-                    b.HasOne("BBIS_API.Models.ProductItem", "ProductObj")
+                    b.HasOne("BBIS_API.Models.ProductItem", "Product")
                         .WithMany("OrdersList")
-                        .HasForeignKey("ProductObjProductId");
+                        .HasForeignKey("ProductId");
                 });
 
             modelBuilder.Entity("BBIS_API.Models.SellItem", b =>

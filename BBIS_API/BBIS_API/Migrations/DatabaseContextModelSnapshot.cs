@@ -35,8 +35,8 @@ namespace BBIS_API.Migrations
                     b.Property<int>("StockAmount")
                         .HasColumnType("int");
 
-                    b.Property<double>("WarehousePrice")
-                        .HasColumnType("float");
+                    b.Property<decimal>("WarehousePrice")
+                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("OrderID");
 
@@ -65,8 +65,8 @@ namespace BBIS_API.Migrations
                         .HasColumnType("nvarchar(10)")
                         .HasMaxLength(10);
 
-                    b.Property<double>("Discount")
-                        .HasColumnType("float");
+                    b.Property<int>("Discount")
+                        .HasColumnType("int");
 
                     b.Property<string>("Flavour")
                         .IsRequired()
@@ -76,8 +76,8 @@ namespace BBIS_API.Migrations
                     b.Property<bool>("Returnable")
                         .HasColumnType("bit");
 
-                    b.Property<double>("SellPrice")
-                        .HasColumnType("float");
+                    b.Property<decimal>("SellPrice")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("StockAmount")
                         .HasColumnType("int");
@@ -97,9 +97,6 @@ namespace BBIS_API.Migrations
                     b.Property<bool>("DiscountApplied")
                         .HasColumnType("bit");
 
-                    b.Property<long>("ProductID")
-                        .HasColumnType("bigint");
-
                     b.Property<long?>("ProductObjProductId")
                         .HasColumnType("bigint");
 
@@ -109,8 +106,8 @@ namespace BBIS_API.Migrations
                     b.Property<DateTime>("SellDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<double>("SellPriceTotal")
-                        .HasColumnType("float");
+                    b.Property<decimal>("SellPriceTotal")
+                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("SellID");
 

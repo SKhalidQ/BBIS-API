@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -10,10 +11,11 @@ namespace BBIS_API.Models
     {
         [Key]
         public long OrderID { get; set; }
-       
+
         [Required]
         [Range(0.01, 999.99)]
-        public double WarehousePrice { get; set; }
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal WarehousePrice { get; set; }
         
         [Required]
         [Range(1, 9999)]
@@ -22,7 +24,7 @@ namespace BBIS_API.Models
         [Required]
         public DateTime OrderDate { get; private set; }
 
-        public virtual ProductItem Product { get; set; }
+        public virtual ProductItem ProductObj { get; set; }
 
         public OrderItem() { OrderDate = DateTime.Now.Date; }
     }

@@ -31,12 +31,7 @@ namespace BBIS_API.DbAccess
             {
                 ProductItem selectedProduct = await ProductQuery.FirstOrDefaultAsync();
 
-                if (selectedProduct == null)
-                {
-                    return false;
-                }
-
-                return true;
+                return (selectedProduct == null) ? false : true;
             }
 
             return false;
@@ -57,8 +52,13 @@ namespace BBIS_API.DbAccess
             return productItem;
         }
 
-        public static async Task UpdateProduct(ProductItem productItem, DatabaseContext _context)
+        public static async Task UpdateProduct(ProductUpdate updatedProduct, ProductItem productItem, DatabaseContext _context)
         {
+            productItem.Returnable = updatedProduct.Returnable;
+            productItem.StockAmount = updatedProduct.StockAmount;
+            productItem.SellPrice = updatedProduct.SellPrice;
+            productItem.Discount = updatedProduct.Discount;
+
             _context.Entry(productItem).State = EntityState.Modified;
 
             await _context.SaveChangesAsync();
@@ -84,14 +84,19 @@ namespace BBIS_API.DbAccess
 
         public static async Task<bool> OrderExists(OrderItem orderItem, DatabaseContext _context)
         {
+            IQueryable<OrderItem> OrderQuery = from Order
+                                               in _context.OrderItems
+                                               where Order.ProductObj.ProductId == orderItem.ProductObj.ProductId
+                                               && Order.OrderDate == orderItem.OrderDate
+                                               select Order;
 
-            //If the product is the same,
+            if (OrderQuery != null)
+            {
+                OrderItem SelectedOrder = await OrderQuery.FirstOrDefaultAsync();
 
-            //and if the order date is the same day/month/year,
+                return (SelectedOrder == null) ? false : true;
+            }
 
-            //return true,
-
-            //else return false;
             return false;
         }
 
@@ -102,17 +107,45 @@ namespace BBIS_API.DbAccess
             return order;
         }
 
-        public static async Task AddOrder(OrderItem orderItem, ProductItem product, DatabaseContext _context)
+        public static async Task<OrderItem> AddOrder(OrderItem orderItem, ProductItem product, DatabaseContext _context)
         {
-            OrderItem newOrder = new OrderItem
+            try
             {
-                StockAmount = orderItem.StockAmount,
-                WarehousePrice = orderItem.WarehousePrice,
-                Product = product
-            };
+                OrderItem newOrder = new OrderItem
+                {
+                    StockAmount = orderItem.StockAmount,
+                    WarehousePrice = orderItem.WarehousePrice,
+                };
 
-            _context.OrderItems.AddAsync(newOrder);
+                product.OrdersList = new List<OrderItem> { newOrder };
+
+                await _context.Database.EnsureCreatedAsync();
+                await _context.AddAsync(newOrder);
+                _context.Entry(product).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+
+                return newOrder;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.GetBaseException().Message);
+                return null;
+            }
+        }
+
+        public static async Task UpdateOrder(OrderItem orderItem, DatabaseContext _context)
+        {
+            _context.Entry(orderItem).State = EntityState.Modified;
+
             await _context.SaveChangesAsync();
+        }
+
+        public static async Task<bool> DeleteOrder(OrderItem orderItem, DatabaseContext _context)
+        {
+            _context.OrderItems.Remove(orderItem);
+            await _context.SaveChangesAsync();
+
+            return true;
         }
         #endregion
 

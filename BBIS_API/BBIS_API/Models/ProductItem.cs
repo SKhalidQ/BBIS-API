@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -34,14 +35,26 @@ namespace BBIS_API.Models
         
         [Required]
         [Range(0.01, 999.99)]
-        public double SellPrice { get; set; }
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal SellPrice { get; set; }
         
         [Required]
-        [Range(0, 100.00)]
-        public double Discount { get; set; }
-        
-        public ICollection<SellItem> SalesList { get; set; }
+        [Range(0, 100)]
+        public int Discount { get; set; }
 
-        public ICollection<OrderItem> OrdersList { get; set; }
+        public virtual ICollection<OrderItem> OrdersList { get; set; }
+        
+        public virtual ICollection<SellItem> SalesList { get; set; }
+
+    }
+
+    public class ProductUpdate
+    {
+        public long ProductId { get; set; }
+        public bool Returnable { get; set; }
+        public int StockAmount { get; set; }
+        public decimal SellPrice { get; set; }
+        public int Discount { get; set; }
     }
 }
+

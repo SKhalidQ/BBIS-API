@@ -50,7 +50,7 @@ namespace BBIS_API.Controllers
         }
         #endregion
 
-        #region HTTPGet ListProducts
+        #region HTTPGet ListProducts & GetProduct
         [HttpGet]
         [ActionName("ListProducts")]
         public async Task<ActionResult<IEnumerable<ProductItem>>> GetProductItems()
@@ -64,7 +64,7 @@ namespace BBIS_API.Controllers
         {
             var productItem = await _context.ProductItems.FindAsync(id);
 
-            //return (productItem == null) ? productItem : productItem;
+            //return (productItem == null) ? productItem : productItem; //Tenary does not return NotFound();
 
             if (productItem == null)
             {
@@ -79,25 +79,27 @@ namespace BBIS_API.Controllers
         #region HTTPPut Update Information
         [HttpPut]
         [ActionName("UpdateInfo")]
-        public async Task<IActionResult> PutProductItem([FromBody]ProductItem productItem)
+        public async Task<IActionResult> PutProductItem([FromBody]ProductUpdate productUpdate)
         {
             try
             {
-                await DbAccessClass.UpdateProduct(productItem, _context);
+                var product = await DbAccessClass.GetProduct(productUpdate.ProductId, _context);
+                
+                await DbAccessClass.UpdateProduct(productUpdate, product, _context);
+                return StatusCode(200, "Done");
             }
-            catch (DbUpdateConcurrencyException)
+            catch (Exception e)
             {
-                if (!await DbAccessClass.ProductIDExists(productItem.ProductId, _context))
+                if (!await DbAccessClass.ProductIDExists(productUpdate.ProductId, _context))
                 {
                     return NotFound();
                 }
                 else
                 {
-                    throw;
+                    return BadRequest(e.Message);
                 }
             }
 
-            return StatusCode(200, "Done");
         }
         #endregion
 
@@ -108,7 +110,7 @@ namespace BBIS_API.Controllers
         {
             var productItem = await DbAccessClass.ProductIDExists(productID, _context);
             
-            if (productItem == null || !productItem)
+            if (!productItem)
                 return BadRequest("Not done");
 
             var product = await DbAccessClass.GetProduct(productID, _context);
