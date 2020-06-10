@@ -20,12 +20,17 @@ namespace BBIS_API.Controllers
             _context = context;
         }
 
-        // GET: api/Sell
+        #region HTTPGet ListSells & GetSells
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<SellItem>>> GetSellItems()
+        [ActionName("ListSells")]
+        public async Task<ActionResult<IEnumerable<SellItem>>> ListSells()
         {
             return await _context.SellItems.ToListAsync();
         }
+
+
+
+        #endregion
 
         // GET: api/Sell/5
         [HttpGet("{id}")]

@@ -1,4 +1,5 @@
 ﻿using BBIS_API.Models;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using SQLitePCL;
@@ -11,14 +12,89 @@ namespace BBIS_API.DbAccess
 {
     public static class DbAccessClass
     {
+        #region APIStatus Check
+
+        public static async Task<bool> DatabaseCheck(DatabaseContext _context)
+        {
+            _context.Database.EnsureCreated();
+
+            var isConected = await _context.Database.CanConnectAsync();
+
+            return (isConected) ? true : false;
+        }
+
+        #endregion
+
         #region Product
+        public static async Task<ProductItem> AddProduct(ProductItem productItem, DatabaseContext _context)
+        {
+            _context.ProductItems.Add(productItem);
+            await _context.SaveChangesAsync();
+
+            return productItem;
+        }
+        
+        public static async Task<ProductItem> GetProduct(long productID, DatabaseContext _context)
+        {
+            return await _context.ProductItems.FindAsync(productID);
+        }
+
+        public static async Task<ProductGet> GetOnlyProduct(long productID, DatabaseContext _context)
+        {
+            var product = await _context.ProductItems.FindAsync(productID);
+
+            return GetSecretProduct(product);
+        }
+
+        public static async Task<ActionResult<IEnumerable<ProductGet>>> ListProducts(DatabaseContext _context)
+        {
+            return await _context.ProductItems.Select(x => GetSecretProduct(x)).ToListAsync();
+        }
+
+        private static ProductGet GetSecretProduct(ProductItem productItem) => new ProductGet
+        {
+            ProductId = productItem.ProductId,
+            Brand = productItem.Brand,
+            Flavour = productItem.Flavour,
+            Alcoholic = productItem.Alcoholic,
+            ContainerType = productItem.ContainerType,
+            Returnable = productItem.Returnable,
+            StockAmount = productItem.StockAmount,
+            SellPrice = productItem.SellPrice,
+            Discount = productItem.Discount
+        };
+
+        public static async Task UpdateProduct(ProductUpdate updatedProduct, ProductItem productItem, DatabaseContext _context)
+        {
+            if (updatedProduct.SellPrice != -1)
+                productItem.SellPrice = updatedProduct.SellPrice;
+            if (updatedProduct.Discount != -1)
+                productItem.Discount = updatedProduct.Discount;
+            if (updatedProduct.StockAmount != -1)
+                productItem.StockAmount = updatedProduct.StockAmount;
+
+            productItem.Returnable = updatedProduct.Returnable;
+
+            _context.Entry(productItem).State = EntityState.Modified;
+
+            await _context.SaveChangesAsync();
+        }
+        
+        public static async Task<bool> DeleteProduct(ProductItem productItem, DatabaseContext _context)
+        {
+            _context.ProductItems.Remove(productItem);
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
+        
         public static async Task<bool> ProductIDExists(long productID, DatabaseContext _context)
         {
             var product = await _context.ProductItems.AnyAsync(e => e.ProductId == productID);
 
             return (product) ? true : false;
         }
-
+        
         public static async Task<bool> ProductExists(ProductItem product, DatabaseContext _context)
         {
             IQueryable<ProductItem> ProductQuery = from Product
@@ -36,101 +112,32 @@ namespace BBIS_API.DbAccess
 
             return false;
         }
-
-        public static async Task<ProductItem> GetProduct(long productID, DatabaseContext _context)
-        {
-            var product = await _context.ProductItems.FindAsync(productID);
-
-            return product;
-        }
-
-        public static async Task<ProductItem> AddProduct(ProductItem productItem, DatabaseContext _context)
-        {
-            _context.ProductItems.Add(productItem);
-            await _context.SaveChangesAsync();
-
-            return productItem;
-        }
-
-        public static async Task UpdateProduct(ProductUpdate updatedProduct, ProductItem productItem, DatabaseContext _context)
-        {
-            productItem.Returnable = updatedProduct.Returnable;
-            productItem.StockAmount = updatedProduct.StockAmount;
-            productItem.SellPrice = updatedProduct.SellPrice;
-            productItem.Discount = updatedProduct.Discount;
-
-            _context.Entry(productItem).State = EntityState.Modified;
-
-            await _context.SaveChangesAsync();
-        }
-
-        public static async Task<bool> DeleteProduct(ProductItem productItem, DatabaseContext _context)
-        {
-            _context.ProductItems.Remove(productItem);
-            await _context.SaveChangesAsync();
-
-            return true;
-        }
-
+        
         #endregion
 
         #region Order
-        public static async Task<bool> OrderIDExists(long orderID, DatabaseContext _context)
+        public static async Task AddOrder(OrderItem orderItem, ProductItem product, DatabaseContext _context)
         {
-            var order = await _context.OrderItems.AnyAsync(e => e.OrderID == orderID);
-
-            return (order) ? true : false;
-        }
-
-        public static async Task<bool> OrderExists(OrderItem orderItem, DatabaseContext _context)
-        {
-            IQueryable<OrderItem> OrderQuery = from Order
-                                               in _context.OrderItems
-                                               where Order.ProductObj.ProductId == orderItem.ProductObj.ProductId
-                                               && Order.OrderDate == orderItem.OrderDate
-                                               select Order;
-
-            if (OrderQuery != null)
+            product.OrdersList.Add(new OrderItem
             {
-                OrderItem SelectedOrder = await OrderQuery.FirstOrDefaultAsync();
+                StockAmount = orderItem.StockAmount,
+                WarehousePrice = orderItem.WarehousePrice
+            });
 
-                return (SelectedOrder == null) ? false : true;
-            }
-
-            return false;
+            product.StockAmount += orderItem.StockAmount;
+            await _context.SaveChangesAsync();
         }
 
         public static async Task<OrderItem> GetOrder(long orderID, DatabaseContext _context)
         {
-            var order = await _context.OrderItems.FindAsync(orderID);
-
-            return order;
+            return await _context.OrderItems.Include(x => GetSecretProduct(x.Product)).FirstOrDefaultAsync(x => x.OrderID == orderID);
         }
 
-        public static async Task<OrderItem> AddOrder(OrderItem orderItem, ProductItem product, DatabaseContext _context)
+        public static async Task<ActionResult<IEnumerable<OrderItem>>> ListOrders(DatabaseContext _context)
         {
-            try
-            {
-                OrderItem newOrder = new OrderItem
-                {
-                    StockAmount = orderItem.StockAmount,
-                    WarehousePrice = orderItem.WarehousePrice,
-                };
+            return await _context.OrderItems.Include(x => GetSecretProduct(x.Product)).ToListAsync();
 
-                product.OrdersList = new List<OrderItem> { newOrder };
-
-                await _context.Database.EnsureCreatedAsync();
-                await _context.AddAsync(newOrder);
-                _context.Entry(product).State = EntityState.Modified;
-                await _context.SaveChangesAsync();
-
-                return newOrder;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.GetBaseException().Message);
-                return null;
-            }
+            //return await _context.OrderItems.Include(x => x.Product).ToListAsync();
         }
 
         public static async Task UpdateOrder(OrderItem orderItem, DatabaseContext _context)
@@ -142,10 +149,40 @@ namespace BBIS_API.DbAccess
 
         public static async Task<bool> DeleteOrder(OrderItem orderItem, DatabaseContext _context)
         {
+            var orderWithProduct = await _context.OrderItems.Include(x => x.Product)
+                .FirstOrDefaultAsync(x => x.OrderID == orderItem.OrderID);
+
+            orderWithProduct.Product.StockAmount -= orderItem.StockAmount;
+
             _context.OrderItems.Remove(orderItem);
             await _context.SaveChangesAsync();
 
             return true;
+        }
+
+        public static async Task<bool> OrderIDExists(long orderID, DatabaseContext _context)
+        {
+            var order = await _context.OrderItems.AnyAsync(e => e.OrderID == orderID);
+
+            return (order) ? true : false;
+        }
+
+        public static async Task<bool> OrderExists(OrderItem orderItem, DatabaseContext _context)
+        {
+            IQueryable<OrderItem> OrderQuery = from Order
+                                               in _context.OrderItems
+                                               where Order.Product.ProductId == orderItem.Product.ProductId
+                                               && Order.OrderDate == orderItem.OrderDate
+                                               select Order;
+
+            if (OrderQuery != null)
+            {
+                OrderItem SelectedOrder = await OrderQuery.FirstOrDefaultAsync();
+
+                return (SelectedOrder == null) ? false : true;
+            }
+
+            return false;
         }
         #endregion
 

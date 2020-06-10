@@ -28,8 +28,13 @@ namespace BBIS_API
         public void ConfigureServices(IServiceCollection services)
         {
             //services.AddDbContext<ProductContext>(opt => opt.UseInMemoryDatabase("ProductList"));
+            services.AddHealthChecks();
             services.AddDbContext<DatabaseContext>(opt => opt.UseSqlServer(Configuration.GetConnectionString("localDatabase")));
             services.AddControllers();
+            services.AddControllersWithViews().AddNewtonsoftJson(options =>
+                options.SerializerSettings.ReferenceLoopHandling = 
+                Newtonsoft.Json.ReferenceLoopHandling.Ignore
+            );
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -39,6 +44,8 @@ namespace BBIS_API
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseHealthChecks("/healthCheck");
 
             app.UseCors(options =>
             {

@@ -22,16 +22,6 @@ namespace BBIS_API.Controllers
             _context = context;
         }
 
-        #region Main Menu
-        [HttpGet]
-        [ActionName("Status")]
-        public string Hello()
-        {
-            HttpContext.Response.StatusCode = 200;
-            return "API is Active";
-        }
-        #endregion
-
         #region HTTPPost AddProduct
         [HttpPost]
         [ActionName("AddProduct")]
@@ -53,18 +43,16 @@ namespace BBIS_API.Controllers
         #region HTTPGet ListProducts & GetProduct
         [HttpGet]
         [ActionName("ListProducts")]
-        public async Task<ActionResult<IEnumerable<ProductItem>>> GetProductItems()
+        public async Task<ActionResult<IEnumerable<ProductGet>>> GetProductItems()
         {
-            return await _context.ProductItems.ToListAsync();
+            return await DbAccessClass.ListProducts(_context);
         }
 
         [HttpGet]
         [ActionName("GetProduct")]
-        public async Task<ActionResult<ProductItem>> GetProductItem([FromBody]long id)
+        public async Task<ActionResult<ProductGet>> GetProductItem([FromBody]long productID)
         {
-            var productItem = await _context.ProductItems.FindAsync(id);
-
-            //return (productItem == null) ? productItem : productItem; //Tenary does not return NotFound();
+            var productItem = await DbAccessClass.GetOnlyProduct(productID, _context);
 
             if (productItem == null)
             {
@@ -114,7 +102,7 @@ namespace BBIS_API.Controllers
                 return BadRequest("Not done");
 
             var product = await DbAccessClass.GetProduct(productID, _context);
-            DbAccessClass.DeleteProduct(product, _context);
+            await DbAccessClass.DeleteProduct(product, _context);
 
             return Ok("Done");
         }

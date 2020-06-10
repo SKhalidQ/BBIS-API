@@ -24,7 +24,7 @@ namespace BBIS_API.Models
         [Required]
         public DateTime OrderDate { get; private set; }
 
-        public virtual ProductItem ProductObj { get; set; }
+        public ProductItem Product { get; set; }
 
         public OrderItem() { OrderDate = DateTime.Now.Date; }
     }

@@ -39,7 +39,7 @@ namespace BBIS_API.Controllers
                 if (orderExits)
                     throw new Exception("This order already exists");
 
-                var newOrder = await DbAccessClass.AddOrder(orderItem, product, _context);
+                var newOrder = DbAccessClass.AddOrder(orderItem, product, _context);
 
                 //If this return does not work just do Ok(newOrder); and make the AddOrder into a Task which returns a OrderItem
                 return CreatedAtAction("GetOrder", new { id = orderItem.OrderID }, orderItem);
@@ -57,7 +57,7 @@ namespace BBIS_API.Controllers
         [ActionName("ListOrders")]
         public async Task<ActionResult<IEnumerable<OrderItem>>> GetOrderItems()
         {
-            return await _context.OrderItems.ToListAsync();
+            return await DbAccessClass.ListOrders(_context);
         }
 
         [HttpGet]
@@ -119,7 +119,9 @@ namespace BBIS_API.Controllers
                 return BadRequest("Not done");
 
             var order = await DbAccessClass.GetOrder(orderID, _context);
-            DbAccessClass.DeleteOrder(order, _context);
+            var product = await DbAccessClass.GetProduct(order.Product.ProductId, _context);
+            System.Diagnostics.Debug.WriteLine("THIS IS THE PRODUCT IS FOR THIS ORDER " + product);
+            await DbAccessClass.DeleteOrder(order, _context);
 
             return Ok("Done");
         }

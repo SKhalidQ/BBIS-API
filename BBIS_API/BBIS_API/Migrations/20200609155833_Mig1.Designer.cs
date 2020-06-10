@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BBIS_API.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20200607154350_Mig1")]
+    [Migration("20200609155833_Mig1")]
     partial class Mig1
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
