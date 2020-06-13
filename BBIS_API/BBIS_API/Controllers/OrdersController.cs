@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using BBIS_API.Models;
 using BBIS_API.DbAccess;
+using AutoMapper;
 
 namespace BBIS_API.Controllers
 {
@@ -15,10 +16,12 @@ namespace BBIS_API.Controllers
     public class OrdersController : ControllerBase
     {
         private readonly DatabaseContext _context;
+        private readonly IMapper _mapper;
 
-        public OrdersController(DatabaseContext context)
+        public OrdersController(DatabaseContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         #region HTTPPost
@@ -42,7 +45,7 @@ namespace BBIS_API.Controllers
                 var newOrder = DbAccessClass.AddOrder(orderItem, product, _context);
 
                 //If this return does not work just do Ok(newOrder); and make the AddOrder into a Task which returns a OrderItem
-                return CreatedAtAction("GetOrder", new { id = orderItem.OrderID }, orderItem);
+                return CreatedAtAction("GetOrder", new { id = orderItem.OrderID }, "Done");
 
             }
             catch (Exception ex)
@@ -57,12 +60,14 @@ namespace BBIS_API.Controllers
         [ActionName("ListOrders")]
         public async Task<ActionResult<IEnumerable<OrderItem>>> GetOrderItems()
         {
-            return await DbAccessClass.ListOrders(_context);
+            var orders = await DbAccessClass.ListOrders(_context);
+
+            return Ok(_mapper.Map<IEnumerable<OrderGet>>(orders));
         }
 
         [HttpGet]
         [ActionName("GetOrder")]
-        public async Task<ActionResult<OrderItem>> GetOrderItem([FromBody]long orderID)
+        public async Task<ActionResult> GetOrderItem([FromBody]long orderID)
         {
             try
             {
@@ -72,9 +77,9 @@ namespace BBIS_API.Controllers
                     throw new Exception("This order does not exist");
                 else
                 {
-                    var getOrder = await DbAccessClass.GetOrder(orderID, _context);
+                    var getOrder = await DbAccessClass.GetOrderJson(orderID, _context);
 
-                    return Ok(getOrder);
+                    return Ok(_mapper.Map<OrderGet>(getOrder));
                 }
             }
             catch (Exception ex)

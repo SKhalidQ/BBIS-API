@@ -1,11 +1,9 @@
 ﻿using BBIS_API.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
-using SQLitePCL;
-using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 
 namespace BBIS_API.DbAccess
@@ -23,6 +21,15 @@ namespace BBIS_API.DbAccess
             return (isConected) ? true : false;
         }
 
+        public static async Task<bool> ClearDatabase(DatabaseContext _context)
+        {
+            var deleteDatabase = await _context.Database.EnsureDeletedAsync();
+            var createDatabase = await _context.Database.EnsureCreatedAsync();
+            var isConnected = await _context.Database.CanConnectAsync();
+
+            return (deleteDatabase && createDatabase && isConnected) ? true : false;
+        }
+
         #endregion
 
         #region Product
@@ -33,7 +40,7 @@ namespace BBIS_API.DbAccess
 
             return productItem;
         }
-        
+
         public static async Task<ProductItem> GetProduct(long productID, DatabaseContext _context)
         {
             return await _context.ProductItems.FindAsync(productID);
@@ -79,7 +86,7 @@ namespace BBIS_API.DbAccess
 
             await _context.SaveChangesAsync();
         }
-        
+
         public static async Task<bool> DeleteProduct(ProductItem productItem, DatabaseContext _context)
         {
             _context.ProductItems.Remove(productItem);
@@ -87,32 +94,21 @@ namespace BBIS_API.DbAccess
 
             return true;
         }
-        
+
         public static async Task<bool> ProductIDExists(long productID, DatabaseContext _context)
         {
             var product = await _context.ProductItems.AnyAsync(e => e.ProductId == productID);
 
             return (product) ? true : false;
         }
-        
+
         public static async Task<bool> ProductExists(ProductItem product, DatabaseContext _context)
         {
-            IQueryable<ProductItem> ProductQuery = from Product
-                                                   in _context.ProductItems
-                                                   where Product.Brand == product.Brand
-                                                   && Product.Flavour == product.Flavour
-                                                   && Product.ContainerType == product.ContainerType
-                                                   select Product;
-            if (ProductQuery != null)
-            {
-                ProductItem selectedProduct = await ProductQuery.FirstOrDefaultAsync();
-
-                return (selectedProduct == null) ? false : true;
-            }
-
-            return false;
+            return await _context.ProductItems.AnyAsync(x => x.Brand == product.Brand 
+                                                          && x.Flavour == product.Flavour 
+                                                          && x.ContainerType == product.ContainerType);
         }
-        
+
         #endregion
 
         #region Order
@@ -120,24 +116,30 @@ namespace BBIS_API.DbAccess
         {
             product.OrdersList.Add(new OrderItem
             {
-                StockAmount = orderItem.StockAmount,
-                WarehousePrice = orderItem.WarehousePrice
+                QuantityOrdered = orderItem.QuantityOrdered,
+                TotalCost = orderItem.TotalCost
             });
 
-            product.StockAmount += orderItem.StockAmount;
+            product.StockAmount += orderItem.QuantityOrdered;
             await _context.SaveChangesAsync();
         }
 
         public static async Task<OrderItem> GetOrder(long orderID, DatabaseContext _context)
         {
-            return await _context.OrderItems.Include(x => GetSecretProduct(x.Product)).FirstOrDefaultAsync(x => x.OrderID == orderID);
+            return await _context.OrderItems.Include(x => x.Product).FirstOrDefaultAsync(x => x.OrderID == orderID);
         }
 
-        public static async Task<ActionResult<IEnumerable<OrderItem>>> ListOrders(DatabaseContext _context)
+        public static async Task<OrderItem> GetOrderJson(long orderID, DatabaseContext _context)
         {
-            return await _context.OrderItems.Include(x => GetSecretProduct(x.Product)).ToListAsync();
+            var order = await _context.OrderItems.Include(x => x.Product)
+                                                 .FirstOrDefaultAsync(x => x.OrderID == orderID);
 
-            //return await _context.OrderItems.Include(x => x.Product).ToListAsync();
+            return order;
+        }
+
+        public static async Task<IEnumerable<OrderItem>> ListOrders(DatabaseContext _context)
+        {
+            return await _context.OrderItems.Include(x => x.Product).ToListAsync();
         }
 
         public static async Task UpdateOrder(OrderItem orderItem, DatabaseContext _context)
@@ -152,7 +154,7 @@ namespace BBIS_API.DbAccess
             var orderWithProduct = await _context.OrderItems.Include(x => x.Product)
                 .FirstOrDefaultAsync(x => x.OrderID == orderItem.OrderID);
 
-            orderWithProduct.Product.StockAmount -= orderItem.StockAmount;
+            orderWithProduct.Product.StockAmount -= orderItem.QuantityOrdered;
 
             _context.OrderItems.Remove(orderItem);
             await _context.SaveChangesAsync();

@@ -1,11 +1,6 @@
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Microsoft.AspNetCore.Hosting;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using BBIS_API.Models;
-using System.Linq;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
 using System;
 
 namespace BBIS_API
@@ -25,7 +20,8 @@ namespace BBIS_API
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) => Host.CreateDefaultBuilder(args)
-            .ConfigureWebHostDefaults(webBuilder =>{
+            .ConfigureWebHostDefaults(webBuilder =>
+            {
                 webBuilder.UseStartup<Startup>();
             });
 

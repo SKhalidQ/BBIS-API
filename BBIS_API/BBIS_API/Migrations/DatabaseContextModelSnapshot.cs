@@ -32,10 +32,10 @@ namespace BBIS_API.Migrations
                     b.Property<long?>("ProductId")
                         .HasColumnType("bigint");
 
-                    b.Property<int>("StockAmount")
+                    b.Property<int>("QuantityOrdered")
                         .HasColumnType("int");
 
-                    b.Property<decimal>("WarehousePrice")
+                    b.Property<decimal>("TotalCost")
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("OrderID");
@@ -97,21 +97,21 @@ namespace BBIS_API.Migrations
                     b.Property<bool>("DiscountApplied")
                         .HasColumnType("bit");
 
-                    b.Property<long?>("ProductObjProductId")
+                    b.Property<long?>("ProductId")
                         .HasColumnType("bigint");
 
-                    b.Property<int>("SellAmount")
+                    b.Property<int>("QuantitySold")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("SellDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<decimal>("SellPriceTotal")
+                    b.Property<decimal>("TotalCost")
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("SellID");
 
-                    b.HasIndex("ProductObjProductId");
+                    b.HasIndex("ProductId");
 
                     b.ToTable("SellItems");
                 });
@@ -125,9 +125,9 @@ namespace BBIS_API.Migrations
 
             modelBuilder.Entity("BBIS_API.Models.SellItem", b =>
                 {
-                    b.HasOne("BBIS_API.Models.ProductItem", "ProductObj")
+                    b.HasOne("BBIS_API.Models.ProductItem", "Product")
                         .WithMany("SalesList")
-                        .HasForeignKey("ProductObjProductId");
+                        .HasForeignKey("ProductId");
                 });
 #pragma warning restore 612, 618
         }

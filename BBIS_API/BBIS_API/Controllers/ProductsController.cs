@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using BBIS_API.DbAccess;
 using BBIS_API.Models;
-using System.Diagnostics;
-using BBIS_API.DbAccess;
+using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace BBIS_API.Controllers
 {
@@ -30,9 +26,7 @@ namespace BBIS_API.Controllers
             var foundProduct = await DbAccessClass.ProductExists(productItem, _context);
 
             if (foundProduct)
-            {
-                return StatusCode(400, "Already Exists");
-            }
+                return StatusCode(400, "Product already exists");
 
             var newProduct = await DbAccessClass.AddProduct(productItem, _context);
 
@@ -55,9 +49,7 @@ namespace BBIS_API.Controllers
             var productItem = await DbAccessClass.GetOnlyProduct(productID, _context);
 
             if (productItem == null)
-            {
                 return NotFound("Product Does Not Exist");
-            }
 
             return productItem;
         }
@@ -72,20 +64,16 @@ namespace BBIS_API.Controllers
             try
             {
                 var product = await DbAccessClass.GetProduct(productUpdate.ProductId, _context);
-                
+
                 await DbAccessClass.UpdateProduct(productUpdate, product, _context);
                 return StatusCode(200, "Done");
             }
             catch (Exception e)
             {
                 if (!await DbAccessClass.ProductIDExists(productUpdate.ProductId, _context))
-                {
                     return NotFound();
-                }
                 else
-                {
                     return BadRequest(e.Message);
-                }
             }
 
         }
@@ -97,7 +85,7 @@ namespace BBIS_API.Controllers
         public async Task<ActionResult<ProductItem>> DeleteProduct([FromBody]long productID)
         {
             var productItem = await DbAccessClass.ProductIDExists(productID, _context);
-            
+
             if (!productItem)
                 return BadRequest("Not done");
 

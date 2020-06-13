@@ -33,8 +33,8 @@ namespace BBIS_API.Migrations
                 {
                     OrderID = table.Column<long>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    WarehousePrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    StockAmount = table.Column<int>(nullable: false),
+                    TotalCost = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    QuantityOrdered = table.Column<int>(nullable: false),
                     OrderDate = table.Column<DateTime>(nullable: false),
                     ProductId = table.Column<long>(nullable: true)
                 },
@@ -55,18 +55,18 @@ namespace BBIS_API.Migrations
                 {
                     SellID = table.Column<long>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    SellAmount = table.Column<int>(nullable: false),
-                    SellPriceTotal = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    QuantitySold = table.Column<int>(nullable: false),
+                    TotalCost = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     DiscountApplied = table.Column<bool>(nullable: false),
                     SellDate = table.Column<DateTime>(nullable: false),
-                    ProductObjProductId = table.Column<long>(nullable: true)
+                    ProductId = table.Column<long>(nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_SellItems", x => x.SellID);
                     table.ForeignKey(
-                        name: "FK_SellItems_ProductItems_ProductObjProductId",
-                        column: x => x.ProductObjProductId,
+                        name: "FK_SellItems_ProductItems_ProductId",
+                        column: x => x.ProductId,
                         principalTable: "ProductItems",
                         principalColumn: "ProductId",
                         onDelete: ReferentialAction.Restrict);
@@ -78,9 +78,9 @@ namespace BBIS_API.Migrations
                 column: "ProductId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_SellItems_ProductObjProductId",
+                name: "IX_SellItems_ProductId",
                 table: "SellItems",
-                column: "ProductObjProductId");
+                column: "ProductId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

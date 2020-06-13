@@ -20,6 +20,10 @@ namespace BBIS_API.Controllers
             _context = context;
         }
 
+        #region HTTPPost Add Sell
+
+        #endregion
+
         #region HTTPGet ListSells & GetSells
         [HttpGet]
         [ActionName("ListSells")]
@@ -28,7 +32,13 @@ namespace BBIS_API.Controllers
             return await _context.SellItems.ToListAsync();
         }
 
+        #endregion
 
+        #region HTTPPut Update Sell
+
+        #endregion
+
+        #region HTTPDelete Delete Sell
 
         #endregion
 
