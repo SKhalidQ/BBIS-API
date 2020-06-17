@@ -8,7 +8,7 @@ namespace BBIS_API.Models
     public class ProductItem
     {
         [Key]
-        public long ProductId { get; set; }
+        public long ProductID { get; set; }
 
         [Required]
         [StringLength(50, ErrorMessage = "Value for {0} has a max limit of {1} characters.")]
@@ -43,12 +43,12 @@ namespace BBIS_API.Models
         public ICollection<OrderItem> OrdersList { get; set; } = new List<OrderItem>();
 
         public ICollection<SellItem> SalesList { get; set; } = new List<SellItem>();
-
     }
 
     public class ProductUpdate
     {
-        public long ProductId { get; set; }
+        [Required]
+        public long ProductID { get; set; }
         public bool Returnable { get; set; }
 
         [Range(-1, 999, ErrorMessage = "Value for {0} must be between {1} and {2}.")]
@@ -63,7 +63,8 @@ namespace BBIS_API.Models
 
     public class ProductGet
     {
-        public long ProductId { get; set; }
+        [Required]
+        public long ProductID { get; set; }
         public string Brand { get; set; }
         public string Flavour { get; set; }
         public bool Alcoholic { get; set; }

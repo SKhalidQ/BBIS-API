@@ -10,16 +10,19 @@ namespace BBIS_API.Models
         public long SellID { get; set; }
 
         [Required]
-        [Range(0.01, 999.99)]
+        [Range(1, 999, ErrorMessage = "Value for {0} must be between {1} and {2}.")]
         public int QuantitySold { get; set; }
 
         [Required]
-        [Range(0.01, 999.99)]
+        [Range(0.01, 999.99, ErrorMessage = "Value for {0} must be between {1} and {2}.")]
         [Column(TypeName = "decimal(18,2)")]
         public decimal TotalCost { get; set; }
 
         [Required]
         public bool DiscountApplied { get; set; }
+
+        //[Required]
+        //public decimal Payed { get; set; }
 
         [Required]
         public DateTime SellDate { get; private set; }
@@ -31,6 +34,7 @@ namespace BBIS_API.Models
 
     public class SellGet
     {
+        [Required]
         public long SellID { get; set; }
         public int QuantitySold { get; set; }
         public decimal TotalCost { get; set; }
@@ -38,6 +42,14 @@ namespace BBIS_API.Models
         public DateTime SellDate { get; private set; }
         public ProductGet Product { get; set; }
         public SellGet() { SellDate = DateTime.Now; }
+    }
 
+    public class SellSubtotal
+    {
+        [Required]
+        public int Quantity { get; set; }
+
+        [Required]
+        public bool ContainerReturned { get; set; }
     }
 }

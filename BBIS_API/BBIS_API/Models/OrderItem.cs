@@ -10,12 +10,12 @@ namespace BBIS_API.Models
         public long OrderID { get; set; }
 
         [Required]
-        [Range(0.01, 999.99)]
+        [Range(0.01, 999.99, ErrorMessage = "Value for {0} must be between {1} and {2}.")]
         [Column(TypeName = "decimal(18,2)")]
         public decimal TotalCost { get; set; }
 
         [Required]
-        [Range(1, 9999)]
+        [Range(1, 999, ErrorMessage = "Value for {0} must be between {1} and {2}.")]
         public int QuantityOrdered { get; set; }
 
         [Required]
@@ -28,6 +28,7 @@ namespace BBIS_API.Models
 
     public class OrderGet
     {
+        [Required]
         public long OrderID { get; set; }
         public decimal TotalCost { get; set; }
         public int QuantityOrdered { get; set; }

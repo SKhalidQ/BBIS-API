@@ -26,11 +26,11 @@ namespace BBIS_API.Controllers
             var foundProduct = await DbAccessClass.ProductExists(productItem, _context);
 
             if (foundProduct)
-                return StatusCode(400, "Product already exists");
+                return StatusCode(400, "Not done");
 
             var newProduct = await DbAccessClass.AddProduct(productItem, _context);
 
-            return CreatedAtAction("GetProduct", new { id = newProduct.ProductId }, "Done");
+            return CreatedAtAction("GetProduct", new { id = newProduct.ProductID }, Ok("Done"));
         }
         #endregion
 
@@ -63,17 +63,19 @@ namespace BBIS_API.Controllers
         {
             try
             {
-                var product = await DbAccessClass.GetProduct(productUpdate.ProductId, _context);
+                var productExists = await DbAccessClass.ProductIDExists(productUpdate.ProductID, _context);
+
+                if (!productExists)
+                    throw new Exception("Not done");
+
+                var product = await DbAccessClass.GetProduct(productUpdate.ProductID, _context);
 
                 await DbAccessClass.UpdateProduct(productUpdate, product, _context);
-                return StatusCode(200, "Done");
+                return Ok("Done");
             }
             catch (Exception e)
             {
-                if (!await DbAccessClass.ProductIDExists(productUpdate.ProductId, _context))
-                    return NotFound();
-                else
-                    return BadRequest(e.Message);
+                return BadRequest(e.Message);
             }
 
         }

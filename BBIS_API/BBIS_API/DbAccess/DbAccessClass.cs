@@ -1,6 +1,7 @@
 ﻿using BBIS_API.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
@@ -11,7 +12,6 @@ namespace BBIS_API.DbAccess
     public static class DbAccessClass
     {
         #region APIStatus Check
-
         public static async Task<bool> DatabaseCheck(DatabaseContext _context)
         {
             _context.Database.EnsureCreated();
@@ -29,7 +29,6 @@ namespace BBIS_API.DbAccess
 
             return (deleteDatabase && createDatabase && isConnected) ? true : false;
         }
-
         #endregion
 
         #region Product
@@ -60,7 +59,7 @@ namespace BBIS_API.DbAccess
 
         private static ProductGet GetSecretProduct(ProductItem productItem) => new ProductGet
         {
-            ProductId = productItem.ProductId,
+            ProductID = productItem.ProductID,
             Brand = productItem.Brand,
             Flavour = productItem.Flavour,
             Alcoholic = productItem.Alcoholic,
@@ -97,7 +96,7 @@ namespace BBIS_API.DbAccess
 
         public static async Task<bool> ProductIDExists(long productID, DatabaseContext _context)
         {
-            var product = await _context.ProductItems.AnyAsync(e => e.ProductId == productID);
+            var product = await _context.ProductItems.AnyAsync(e => e.ProductID == productID);
 
             return (product) ? true : false;
         }
@@ -108,7 +107,6 @@ namespace BBIS_API.DbAccess
                                                           && x.Flavour == product.Flavour 
                                                           && x.ContainerType == product.ContainerType);
         }
-
         #endregion
 
         #region Order
@@ -121,20 +119,13 @@ namespace BBIS_API.DbAccess
             });
 
             product.StockAmount += orderItem.QuantityOrdered;
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(); 
         }
 
         public static async Task<OrderItem> GetOrder(long orderID, DatabaseContext _context)
         {
-            return await _context.OrderItems.Include(x => x.Product).FirstOrDefaultAsync(x => x.OrderID == orderID);
-        }
-
-        public static async Task<OrderItem> GetOrderJson(long orderID, DatabaseContext _context)
-        {
-            var order = await _context.OrderItems.Include(x => x.Product)
-                                                 .FirstOrDefaultAsync(x => x.OrderID == orderID);
-
-            return order;
+            return await _context.OrderItems.Include(x => x.Product)
+                                            .FirstOrDefaultAsync(x => x.OrderID == orderID);
         }
 
         public static async Task<IEnumerable<OrderItem>> ListOrders(DatabaseContext _context)
@@ -151,15 +142,19 @@ namespace BBIS_API.DbAccess
 
         public static async Task<bool> DeleteOrder(OrderItem orderItem, DatabaseContext _context)
         {
-            var orderWithProduct = await _context.OrderItems.Include(x => x.Product)
-                .FirstOrDefaultAsync(x => x.OrderID == orderItem.OrderID);
+            try
+            {
+                orderItem.Product.StockAmount -= orderItem.QuantityOrdered;
 
-            orderWithProduct.Product.StockAmount -= orderItem.QuantityOrdered;
+                _context.OrderItems.Remove(orderItem);
+                await _context.SaveChangesAsync();
 
-            _context.OrderItems.Remove(orderItem);
-            await _context.SaveChangesAsync();
-
-            return true;
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
 
         public static async Task<bool> OrderIDExists(long orderID, DatabaseContext _context)
@@ -169,38 +164,87 @@ namespace BBIS_API.DbAccess
             return (order) ? true : false;
         }
 
-        public static async Task<bool> OrderExists(OrderItem orderItem, DatabaseContext _context)
+        public static async Task<bool> OrderExists(long productID, DatabaseContext _context)
         {
-            IQueryable<OrderItem> OrderQuery = from Order
-                                               in _context.OrderItems
-                                               where Order.Product.ProductId == orderItem.Product.ProductId
-                                               && Order.OrderDate == orderItem.OrderDate
-                                               select Order;
+            return await _context.OrderItems.AnyAsync(x => x.Product.ProductID == productID 
+                                                        && x.OrderDate == DateTime.Now);
 
-            if (OrderQuery != null)
-            {
-                OrderItem SelectedOrder = await OrderQuery.FirstOrDefaultAsync();
+            //IQueryable<OrderItem> OrderQuery = from Order
+            //                                   in _context.OrderItems
+            //                                   where Order.Product.ProductId == orderItem.Product.ProductId
+            //                                   && Order.OrderDate == orderItem.OrderDate
+            //                                   select Order;
 
-                return (SelectedOrder == null) ? false : true;
-            }
+            //if (OrderQuery != null)
+            //{
+            //    OrderItem SelectedOrder = await OrderQuery.FirstOrDefaultAsync();
 
-            return false;
+            //    return (SelectedOrder == null) ? false : true;
+            //}
+
+            //return false;
         }
         #endregion
 
         #region Sell
-        public static async Task<bool> SellIDExists(long sellID, DatabaseContext _context)
+        public static async Task AddSell(SellItem sellItem, ProductItem product, DatabaseContext _context)
         {
-            var sell = await _context.SellItems.AnyAsync(e => e.SellID == sellID);
+            product.SalesList.Add(new SellItem
+            {
+                QuantitySold = sellItem.QuantitySold,
+                TotalCost = sellItem.TotalCost,
+                DiscountApplied = sellItem.DiscountApplied
+            });
 
-            return (sell) ? true : false;
+            product.StockAmount -= sellItem.QuantitySold;
+            await _context.SaveChangesAsync();
         }
-
+        
         public static async Task<SellItem> GetSell(long sellID, DatabaseContext _context)
         {
-            var sell = await _context.SellItems.FindAsync(sellID);
+            return await _context.SellItems.Include(x => x.Product)
+                               .FirstOrDefaultAsync(x => x.SellID == sellID);
+        }
 
-            return sell;
+        public static async Task<IEnumerable<SellItem>> ListSell(DatabaseContext _context)
+        {
+            return await _context.SellItems.Include(x => x.Product).ToListAsync();
+        }
+
+        public static async Task<bool> SellIDExists(long sellID, DatabaseContext _context)
+        {
+            return (await _context.SellItems.AnyAsync(e => e.SellID == sellID)) ? true : false;
+        }
+
+        public static async Task<bool> DeleteSell(SellItem sellItem, DatabaseContext _context)
+        {
+            try
+            {
+                sellItem.Product.StockAmount += sellItem.QuantitySold;
+
+                _context.SellItems.Remove(sellItem);
+                await _context.SaveChangesAsync();
+
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+
+        }
+
+        public static async Task UpdateSell(SellItem updateSell, SellItem sellItem, DatabaseContext _context)
+        {
+            if (updateSell.QuantitySold != -1)
+                sellItem.QuantitySold = updateSell.QuantitySold;
+            if (updateSell.TotalCost != -1)
+                sellItem.TotalCost = updateSell.TotalCost;
+
+            sellItem.DiscountApplied = updateSell.DiscountApplied;
+
+            _context.Entry(sellItem).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
         }
         #endregion
     }
