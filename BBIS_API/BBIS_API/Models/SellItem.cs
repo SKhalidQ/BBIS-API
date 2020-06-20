@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BBIS_API.Models
 {
@@ -10,24 +8,50 @@ namespace BBIS_API.Models
     {
         [Key]
         public long SellID { get; set; }
-        
+
         [Required]
-        public ProductItem ProductID { get; set; }
-        
+        [Range(1, 999, ErrorMessage = "Value for {0} must be between {1} and {2}.")]
+        public int Quantity { get; set; }
+
         [Required]
-        [Range(0.01, 999.99)]
-        public int SellAmount { get; set; }
-        
+        [Range(0.01, 999.99, ErrorMessage = "Value for {0} must be between {1} and {2}.")]
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal TotalCost { get; set; }
+
         [Required]
-        [Range(0.01, 999.99)]
-        public double SellPriceTotal { get; set; }
-        
+        public bool ContainerReturned { get; set; }
+
         [Required]
-        public bool DiscountApplied { get; set; }
-        
+        [Range(0.01, 999.99, ErrorMessage = "Value for {0} must be between {1} and {2}.")]
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal Payed { get; set; }
+
         [Required]
         public DateTime SellDate { get; private set; }
-        
+
+        public ProductItem Product { get; set; }
+
         public SellItem() { SellDate = DateTime.Now; }
+    }
+
+    public class SellGet
+    {
+        [Required]
+        public long SellID { get; set; }
+        public int Quantity { get; set; }
+        public decimal TotalCost { get; set; }
+        public bool ContainerReturned { get; set; }
+        public DateTime SellDate { get; private set; }
+        public ProductGet Product { get; set; }
+        public SellGet() { SellDate = DateTime.Now; }
+    }
+
+    public class SellSubtotal
+    {
+        [Required]
+        public int Quantity { get; set; }
+
+        [Required]
+        public bool ContainerReturned { get; set; }
     }
 }

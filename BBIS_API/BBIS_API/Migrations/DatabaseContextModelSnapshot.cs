@@ -29,20 +29,25 @@ namespace BBIS_API.Migrations
                     b.Property<DateTime>("OrderDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("StockAmount")
+                    b.Property<long?>("ProductID")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("QuantityOrdered")
                         .HasColumnType("int");
 
-                    b.Property<double>("WarehousePrice")
-                        .HasColumnType("float");
+                    b.Property<decimal>("TotalCost")
+                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("OrderID");
+
+                    b.HasIndex("ProductID");
 
                     b.ToTable("OrderItems");
                 });
 
             modelBuilder.Entity("BBIS_API.Models.ProductItem", b =>
                 {
-                    b.Property<long>("ProductId")
+                    b.Property<long>("ProductID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
@@ -65,19 +70,19 @@ namespace BBIS_API.Migrations
 
                     b.Property<string>("Flavour")
                         .IsRequired()
-                        .HasColumnType("nvarchar(300)")
-                        .HasMaxLength(300);
+                        .HasColumnType("nvarchar(60)")
+                        .HasMaxLength(60);
 
                     b.Property<bool>("Returnable")
                         .HasColumnType("bit");
 
-                    b.Property<double>("SellPrice")
-                        .HasColumnType("float");
+                    b.Property<decimal>("SellPrice")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("StockAmount")
                         .HasColumnType("int");
 
-                    b.HasKey("ProductId");
+                    b.HasKey("ProductID");
 
                     b.ToTable("ProductItems");
                 });
@@ -89,21 +94,43 @@ namespace BBIS_API.Migrations
                         .HasColumnType("bigint")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<bool>("DiscountApplied")
+                    b.Property<bool>("ContainerReturned")
                         .HasColumnType("bit");
 
-                    b.Property<int>("SellAmount")
+                    b.Property<decimal>("Payed")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<long?>("ProductID")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("Quantity")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("SellDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<double>("SellPriceTotal")
-                        .HasColumnType("float");
+                    b.Property<decimal>("TotalCost")
+                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("SellID");
 
+                    b.HasIndex("ProductID");
+
                     b.ToTable("SellItems");
+                });
+
+            modelBuilder.Entity("BBIS_API.Models.OrderItem", b =>
+                {
+                    b.HasOne("BBIS_API.Models.ProductItem", "Product")
+                        .WithMany("OrdersList")
+                        .HasForeignKey("ProductID");
+                });
+
+            modelBuilder.Entity("BBIS_API.Models.SellItem", b =>
+                {
+                    b.HasOne("BBIS_API.Models.ProductItem", "Product")
+                        .WithMany("SalesList")
+                        .HasForeignKey("ProductID");
                 });
 #pragma warning restore 612, 618
         }

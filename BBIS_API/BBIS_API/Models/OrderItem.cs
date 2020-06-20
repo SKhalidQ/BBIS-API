@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BBIS_API.Models
 {
@@ -12,19 +10,30 @@ namespace BBIS_API.Models
         public long OrderID { get; set; }
 
         [Required]
-        public ProductItem ProductID { get; set; }
-       
+        [Range(0.01, 999.99, ErrorMessage = "Value for {0} must be between {1} and {2}.")]
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal TotalCost { get; set; }
+
         [Required]
-        [Range(0.01, 999.99)]
-        public double WarehousePrice { get; set; }
-        
-        [Required]
-        [Range(1, 9999)]
-        public int StockAmount { get; set; }
-        
+        [Range(1, 999, ErrorMessage = "Value for {0} must be between {1} and {2}.")]
+        public int QuantityOrdered { get; set; }
+
         [Required]
         public DateTime OrderDate { get; private set; }
-        
-        public OrderItem() { OrderDate = DateTime.Now; }
+
+        public ProductItem Product { get; set; }
+
+        public OrderItem() { OrderDate = DateTime.Now.Date; }
+    }
+
+    public class OrderGet
+    {
+        [Required]
+        public long OrderID { get; set; }
+        public decimal TotalCost { get; set; }
+        public int QuantityOrdered { get; set; }
+        public DateTime OrderDate { get; set; }
+        public ProductGet Product { get; set; }
+        public OrderGet() { OrderDate = DateTime.Now.Date; }
     }
 }
