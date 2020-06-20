@@ -42,7 +42,7 @@ namespace BBIS_API.Controllers
                 var newOrder = DbAccessClass.AddOrder(orderItem, product, _context);
 
                 //If this return does not work just do Ok(newOrder); and make the AddOrder into a Task which returns a OrderItem
-                return CreatedAtAction("GetOrder", new { id = orderItem.OrderID }, "Done");
+                return CreatedAtAction("GetOrder", new { id = orderItem.OrderID }, Ok("200"));
 
             }
             catch (Exception ex)
@@ -92,7 +92,7 @@ namespace BBIS_API.Controllers
             try
             {
                 await DbAccessClass.UpdateOrder(orderItem, _context);
-                return Ok("Done");
+                return Ok("200");
             }
             catch (Exception ex)
             {
@@ -111,7 +111,7 @@ namespace BBIS_API.Controllers
         #region HTTPDelete EliminateOrder
         [HttpDelete]
         [ActionName("EliminateOrder")]
-        public async Task<ActionResult<OrderItem>> DeleteOrder([FromBody]long orderID)
+        public async Task<ActionResult> DeleteOrder([FromBody]long orderID)
         {
             var orderExists = await DbAccessClass.OrderIDExists(orderID, _context);
 
@@ -123,7 +123,7 @@ namespace BBIS_API.Controllers
             System.Diagnostics.Debug.WriteLine("THIS IS THE PRODUCT IS FOR THIS ORDER " + product);
             await DbAccessClass.DeleteOrder(order, _context);
 
-            return Ok("Done");
+            return Ok("200");
         }
         #endregion
     }

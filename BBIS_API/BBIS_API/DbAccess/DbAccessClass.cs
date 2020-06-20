@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 
 namespace BBIS_API.DbAccess
@@ -103,8 +102,8 @@ namespace BBIS_API.DbAccess
 
         public static async Task<bool> ProductExists(ProductItem product, DatabaseContext _context)
         {
-            return await _context.ProductItems.AnyAsync(x => x.Brand == product.Brand 
-                                                          && x.Flavour == product.Flavour 
+            return await _context.ProductItems.AnyAsync(x => x.Brand == product.Brand
+                                                          && x.Flavour == product.Flavour
                                                           && x.ContainerType == product.ContainerType);
         }
         #endregion
@@ -119,7 +118,7 @@ namespace BBIS_API.DbAccess
             });
 
             product.StockAmount += orderItem.QuantityOrdered;
-            await _context.SaveChangesAsync(); 
+            await _context.SaveChangesAsync();
         }
 
         public static async Task<OrderItem> GetOrder(long orderID, DatabaseContext _context)
@@ -166,23 +165,8 @@ namespace BBIS_API.DbAccess
 
         public static async Task<bool> OrderExists(long productID, DatabaseContext _context)
         {
-            return await _context.OrderItems.AnyAsync(x => x.Product.ProductID == productID 
+            return await _context.OrderItems.AnyAsync(x => x.Product.ProductID == productID
                                                         && x.OrderDate == DateTime.Now);
-
-            //IQueryable<OrderItem> OrderQuery = from Order
-            //                                   in _context.OrderItems
-            //                                   where Order.Product.ProductId == orderItem.Product.ProductId
-            //                                   && Order.OrderDate == orderItem.OrderDate
-            //                                   select Order;
-
-            //if (OrderQuery != null)
-            //{
-            //    OrderItem SelectedOrder = await OrderQuery.FirstOrDefaultAsync();
-
-            //    return (SelectedOrder == null) ? false : true;
-            //}
-
-            //return false;
         }
         #endregion
 
@@ -191,15 +175,15 @@ namespace BBIS_API.DbAccess
         {
             product.SalesList.Add(new SellItem
             {
-                QuantitySold = sellItem.QuantitySold,
+                Quantity = sellItem.Quantity,
                 TotalCost = sellItem.TotalCost,
-                DiscountApplied = sellItem.DiscountApplied
+                ContainerReturned = sellItem.ContainerReturned
             });
 
-            product.StockAmount -= sellItem.QuantitySold;
+            product.StockAmount -= sellItem.Quantity;
             await _context.SaveChangesAsync();
         }
-        
+
         public static async Task<SellItem> GetSell(long sellID, DatabaseContext _context)
         {
             return await _context.SellItems.Include(x => x.Product)
@@ -220,7 +204,7 @@ namespace BBIS_API.DbAccess
         {
             try
             {
-                sellItem.Product.StockAmount += sellItem.QuantitySold;
+                sellItem.Product.StockAmount += sellItem.Quantity;
 
                 _context.SellItems.Remove(sellItem);
                 await _context.SaveChangesAsync();
@@ -236,15 +220,22 @@ namespace BBIS_API.DbAccess
 
         public static async Task UpdateSell(SellItem updateSell, SellItem sellItem, DatabaseContext _context)
         {
-            if (updateSell.QuantitySold != -1)
-                sellItem.QuantitySold = updateSell.QuantitySold;
+            if (updateSell.Quantity != -1)
+                sellItem.Quantity = updateSell.Quantity;
             if (updateSell.TotalCost != -1)
                 sellItem.TotalCost = updateSell.TotalCost;
 
-            sellItem.DiscountApplied = updateSell.DiscountApplied;
+            sellItem.ContainerReturned = updateSell.ContainerReturned;
 
             _context.Entry(sellItem).State = EntityState.Modified;
             await _context.SaveChangesAsync();
+        }
+
+        public static async Task<decimal> CalculateSubtotal(decimal subtotal, int discount)
+        {
+            subtotal *= (1 - ((decimal)discount / 100));
+
+            return subtotal;
         }
         #endregion
     }

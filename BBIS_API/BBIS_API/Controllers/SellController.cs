@@ -32,22 +32,40 @@ namespace BBIS_API.Controllers
                 var product = await DbAccessClass.GetProduct(productID, _context);
 
                 if (!productExists)
-                    throw new Exception("Not done");
+                    throw new Exception("Product not found");
 
-                var availableStock = product.StockAmount - sellItem.QuantitySold;
+                var availableStock = product.StockAmount - sellItem.Quantity;
 
                 if (availableStock < 0)
                     throw new Exception("Not enough quantity available in stock");
 
-                await DbAccessClass.AddSell(sellItem, product, _context);
+                var verifyPrice = product.SellPrice * sellItem.Quantity;
+                var verifyWithDiscount = await DbAccessClass.CalculateSubtotal(verifyPrice, product.Discount);
 
-                var change = /*sellItem.Payed -*/ sellItem.TotalCost;
+                if (sellItem.ContainerReturned && verifyWithDiscount != sellItem.TotalCost)
+                    throw new Exception("Error in total");
+
+                else if (verifyPrice != sellItem.TotalCost)
+                    throw new Exception("Error in total");
+
+                var change = sellItem.Payed - sellItem.TotalCost;
+
+                if (change < 0)
+                    throw new Exception("Not enough payment");
+
+                await DbAccessClass.AddSell(sellItem, product, _context);
 
                 return CreatedAtAction("GetSell", new { id = sellItem.SellID }, change);
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                switch (ex.Message){
+                    case "Product not found": return NotFound(ex.Message);
+                    case "Not enough quantity available in stock": return StatusCode(417, ex.Message);
+                    case "Error in total": return StatusCode(409, ex.Message);
+                    case "Not enough payment": return StatusCode(406, ex.Message);
+                    default: return BadRequest(ex.Message);
+                }
             }
         }
         #endregion
@@ -85,7 +103,7 @@ namespace BBIS_API.Controllers
 
         [HttpGet]
         [ActionName("GetSubTotalSell")]
-        public async Task<ActionResult> GetSubtotal([FromBody]SellSubtotal preSubtotal, [FromQuery]long productID)
+        public async Task<ActionResult> GetSubtotal([FromHeader]SellSubtotal preSubtotal, [FromQuery]long productID)
         {
             try
             {
@@ -103,9 +121,10 @@ namespace BBIS_API.Controllers
                 var subtotal = product.SellPrice * preSubtotal.Quantity;
 
                 if (product.Returnable && preSubtotal.ContainerReturned)
-                    subtotal *= 1 - ((decimal)product.Discount / 100);
+                    subtotal = await DbAccessClass.CalculateSubtotal(subtotal, product.Discount);
 
                 return Ok(Math.Round(subtotal, 2));
+
             }
             catch (Exception ex)
             {
@@ -130,7 +149,7 @@ namespace BBIS_API.Controllers
                 var sell = await DbAccessClass.GetSell(sellUpdate.SellID, _context);
                 await DbAccessClass.UpdateSell(sellUpdate, sell, _context);
 
-                return Ok("Done");
+                return Ok("200");
             }
             catch (Exception ex)
             {
@@ -156,7 +175,7 @@ namespace BBIS_API.Controllers
 
                 await DbAccessClass.DeleteSell(sell, _context);
 
-                return Ok("Done");
+                return Ok("200");
             }
             catch (Exception ex)
             {

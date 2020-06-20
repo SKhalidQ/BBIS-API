@@ -30,7 +30,7 @@ namespace BBIS_API.Controllers
 
             var newProduct = await DbAccessClass.AddProduct(productItem, _context);
 
-            return CreatedAtAction("GetProduct", new { id = newProduct.ProductID }, Ok("Done"));
+            return CreatedAtAction("GetProduct", new { id = newProduct.ProductID }, Ok("200"));
         }
         #endregion
 
@@ -71,7 +71,7 @@ namespace BBIS_API.Controllers
                 var product = await DbAccessClass.GetProduct(productUpdate.ProductID, _context);
 
                 await DbAccessClass.UpdateProduct(productUpdate, product, _context);
-                return Ok("Done");
+                return Ok("200");
             }
             catch (Exception e)
             {
@@ -94,7 +94,7 @@ namespace BBIS_API.Controllers
             var product = await DbAccessClass.GetProduct(productID, _context);
             await DbAccessClass.DeleteProduct(product, _context);
 
-            return Ok("Done");
+            return Ok("200");
         }
         #endregion
 

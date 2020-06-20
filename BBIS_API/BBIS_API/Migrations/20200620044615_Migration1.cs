@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace BBIS_API.Migrations
 {
-    public partial class Mig1 : Migration
+    public partial class Migration1 : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -11,7 +11,7 @@ namespace BBIS_API.Migrations
                 name: "ProductItems",
                 columns: table => new
                 {
-                    ProductId = table.Column<long>(nullable: false)
+                    ProductID = table.Column<long>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Brand = table.Column<string>(maxLength: 50, nullable: false),
                     Flavour = table.Column<string>(maxLength: 60, nullable: false),
@@ -24,7 +24,7 @@ namespace BBIS_API.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ProductItems", x => x.ProductId);
+                    table.PrimaryKey("PK_ProductItems", x => x.ProductID);
                 });
 
             migrationBuilder.CreateTable(
@@ -36,16 +36,16 @@ namespace BBIS_API.Migrations
                     TotalCost = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     QuantityOrdered = table.Column<int>(nullable: false),
                     OrderDate = table.Column<DateTime>(nullable: false),
-                    ProductId = table.Column<long>(nullable: true)
+                    ProductID = table.Column<long>(nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_OrderItems", x => x.OrderID);
                     table.ForeignKey(
-                        name: "FK_OrderItems_ProductItems_ProductId",
-                        column: x => x.ProductId,
+                        name: "FK_OrderItems_ProductItems_ProductID",
+                        column: x => x.ProductID,
                         principalTable: "ProductItems",
-                        principalColumn: "ProductId",
+                        principalColumn: "ProductID",
                         onDelete: ReferentialAction.Restrict);
                 });
 
@@ -55,32 +55,33 @@ namespace BBIS_API.Migrations
                 {
                     SellID = table.Column<long>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    QuantitySold = table.Column<int>(nullable: false),
+                    Quantity = table.Column<int>(nullable: false),
                     TotalCost = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    DiscountApplied = table.Column<bool>(nullable: false),
+                    ContainerReturned = table.Column<bool>(nullable: false),
+                    Payed = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     SellDate = table.Column<DateTime>(nullable: false),
-                    ProductId = table.Column<long>(nullable: true)
+                    ProductID = table.Column<long>(nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_SellItems", x => x.SellID);
                     table.ForeignKey(
-                        name: "FK_SellItems_ProductItems_ProductId",
-                        column: x => x.ProductId,
+                        name: "FK_SellItems_ProductItems_ProductID",
+                        column: x => x.ProductID,
                         principalTable: "ProductItems",
-                        principalColumn: "ProductId",
+                        principalColumn: "ProductID",
                         onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_OrderItems_ProductId",
+                name: "IX_OrderItems_ProductID",
                 table: "OrderItems",
-                column: "ProductId");
+                column: "ProductID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_SellItems_ProductId",
+                name: "IX_SellItems_ProductID",
                 table: "SellItems",
-                column: "ProductId");
+                column: "ProductID");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
