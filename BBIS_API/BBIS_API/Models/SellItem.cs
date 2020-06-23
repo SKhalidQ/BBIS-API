@@ -14,7 +14,7 @@ namespace BBIS_API.Models
         public int Quantity { get; set; }
 
         [Required]
-        [Range(0.01, 999.99, ErrorMessage = "Value for {0} must be between {1} and {2}.")]
+        [Range(0.00, 999.99, ErrorMessage = "Value for {0} must be between {1} and {2}.")]
         [Column(TypeName = "decimal(18,2)")]
         public decimal TotalCost { get; set; }
 

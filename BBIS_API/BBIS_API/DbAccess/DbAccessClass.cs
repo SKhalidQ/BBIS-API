@@ -132,8 +132,20 @@ namespace BBIS_API.DbAccess
             return await _context.OrderItems.Include(x => x.Product).ToListAsync();
         }
 
-        public static async Task UpdateOrder(OrderItem orderItem, DatabaseContext _context)
+        public static async Task UpdateOrder(OrderUpdate updatedOrder, OrderItem orderItem, DatabaseContext _context)
         {
+            if (updatedOrder.TotalCost != -1)
+                orderItem.TotalCost = updatedOrder.TotalCost;
+            if (updatedOrder.QuantityOrdered != -1)
+            {
+                if (updatedOrder.QuantityOrdered < orderItem.QuantityOrdered)
+                    orderItem.Product.StockAmount -= updatedOrder.QuantityOrdered;
+                else
+                    orderItem.Product.StockAmount += updatedOrder.QuantityOrdered;
+                
+                orderItem.QuantityOrdered = updatedOrder.QuantityOrdered;
+            }
+
             _context.Entry(orderItem).State = EntityState.Modified;
 
             await _context.SaveChangesAsync();
@@ -231,11 +243,11 @@ namespace BBIS_API.DbAccess
             await _context.SaveChangesAsync();
         }
 
-        public static async Task<decimal> CalculateSubtotal(decimal subtotal, int discount)
+        public static decimal CalculateSubtotal(decimal subtotal, int discount)
         {
             subtotal *= (1 - ((decimal)discount / 100));
 
-            return subtotal;
+            return Math.Round(subtotal, 2);
         }
         #endregion
     }

@@ -23,14 +23,25 @@ namespace BBIS_API.Controllers
         [ActionName("AddProduct")]
         public async Task<ActionResult<ProductItem>> PostProductItem([FromBody]ProductItem productItem)
         {
-            var foundProduct = await DbAccessClass.ProductExists(productItem, _context);
+            try
+            {
+                var foundProduct = await DbAccessClass.ProductExists(productItem, _context);
 
-            if (foundProduct)
-                return StatusCode(400, "Not done");
+                if (foundProduct)
+                    throw new Exception("Product already exists");
 
-            var newProduct = await DbAccessClass.AddProduct(productItem, _context);
+                var newProduct = await DbAccessClass.AddProduct(productItem, _context);
 
-            return CreatedAtAction("GetProduct", new { id = newProduct.ProductID }, Ok("200"));
+                return CreatedAtAction("GetProduct", new { id = newProduct.ProductID }, new JsonResult(Ok("Product added successfully")));
+            }
+            catch (Exception ex)
+            {
+                return ex.Message switch
+                {
+                    "Product already exists" => StatusCode(422, new JsonResult(ex.Message)),
+                    _ => BadRequest(new JsonResult(ex.Message)),
+                };
+            }
         }
         #endregion
 
@@ -39,21 +50,38 @@ namespace BBIS_API.Controllers
         [ActionName("ListProducts")]
         public async Task<ActionResult<IEnumerable<ProductGet>>> GetProductItems()
         {
-            return await DbAccessClass.ListProducts(_context);
+            try
+            {
+                return await DbAccessClass.ListProducts(_context);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new JsonResult(ex.Message));
+            }
         }
 
         [HttpGet]
         [ActionName("GetProduct")]
         public async Task<ActionResult<ProductGet>> GetProductItem([FromBody]long productID)
         {
-            var productItem = await DbAccessClass.GetOnlyProduct(productID, _context);
+            try
+            {
+                var productItem = await DbAccessClass.GetOnlyProduct(productID, _context);
 
-            if (productItem == null)
-                return NotFound("Product Does Not Exist");
+                if (productItem == null)
+                    throw new Exception("Product not found");
 
-            return productItem;
+                return productItem;
+            }
+            catch (Exception ex)
+            {
+                return ex.Message switch
+                {
+                    "Product not found" => NotFound(new JsonResult("Product does not exist")),
+                    _ => BadRequest(new JsonResult(ex.Message)),
+                };
+            }
         }
-
         #endregion
 
         #region HTTPPut Update Information
@@ -66,16 +94,20 @@ namespace BBIS_API.Controllers
                 var productExists = await DbAccessClass.ProductIDExists(productUpdate.ProductID, _context);
 
                 if (!productExists)
-                    throw new Exception("Not done");
+                    throw new Exception("Product not found");
 
                 var product = await DbAccessClass.GetProduct(productUpdate.ProductID, _context);
 
                 await DbAccessClass.UpdateProduct(productUpdate, product, _context);
-                return Ok("200");
+                return Ok(new JsonResult("Product updated successfully"));
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                return BadRequest(e.Message);
+                return ex.Message switch
+                {
+                    "Product not found" => NotFound(new JsonResult(ex.Message)),
+                    _ => BadRequest(new JsonResult(ex.Message)),
+                };
             }
 
         }
@@ -86,15 +118,26 @@ namespace BBIS_API.Controllers
         [ActionName("EliminateProduct")]
         public async Task<ActionResult<ProductItem>> DeleteProduct([FromBody]long productID)
         {
-            var productItem = await DbAccessClass.ProductIDExists(productID, _context);
+            try
+            {
+                var productItem = await DbAccessClass.ProductIDExists(productID, _context);
 
-            if (!productItem)
-                return BadRequest("Not done");
+                if (!productItem)
+                    throw new Exception("Product not found");
 
-            var product = await DbAccessClass.GetProduct(productID, _context);
-            await DbAccessClass.DeleteProduct(product, _context);
+                var product = await DbAccessClass.GetProduct(productID, _context);
+                await DbAccessClass.DeleteProduct(product, _context);
 
-            return Ok("200");
+                return Ok(new JsonResult("Product deleted successfully"));
+            }
+            catch (Exception ex)
+            {
+                return ex.Message switch
+                {
+                    "Product not found" => NotFound(new JsonResult(ex.Message)),
+                    _ => BadRequest(new JsonResult(ex.Message)),
+                };
+            }
         }
         #endregion
 

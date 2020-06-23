@@ -40,12 +40,11 @@ namespace BBIS_API.Controllers
                     throw new Exception("Not enough quantity available in stock");
 
                 var verifyPrice = product.SellPrice * sellItem.Quantity;
-                var verifyWithDiscount = await DbAccessClass.CalculateSubtotal(verifyPrice, product.Discount);
+                var verifyWithDiscount = DbAccessClass.CalculateSubtotal(verifyPrice, product.Discount);
 
                 if (sellItem.ContainerReturned && verifyWithDiscount != sellItem.TotalCost)
                     throw new Exception("Error in total");
-
-                else if (verifyPrice != sellItem.TotalCost)
+                else if (!sellItem.ContainerReturned && verifyPrice != sellItem.TotalCost)
                     throw new Exception("Error in total");
 
                 var change = sellItem.Payed - sellItem.TotalCost;
@@ -55,17 +54,18 @@ namespace BBIS_API.Controllers
 
                 await DbAccessClass.AddSell(sellItem, product, _context);
 
-                return CreatedAtAction("GetSell", new { id = sellItem.SellID }, change);
+                return CreatedAtAction("GetSell", new { id = sellItem.SellID }, new JsonResult("Subtotal: £" + change));
             }
             catch (Exception ex)
             {
-                switch (ex.Message){
-                    case "Product not found": return NotFound(ex.Message);
-                    case "Not enough quantity available in stock": return StatusCode(417, ex.Message);
-                    case "Error in total": return StatusCode(409, ex.Message);
-                    case "Not enough payment": return StatusCode(406, ex.Message);
-                    default: return BadRequest(ex.Message);
-                }
+                return ex.Message switch
+                {
+                    "Product not found" => NotFound(new JsonResult(ex.Message)),
+                    "Not enough quantity available in stock" => StatusCode(417, new JsonResult(ex.Message)),
+                    "Error in total" => StatusCode(409, new JsonResult(ex.Message)),
+                    "Not enough payment" => StatusCode(406, new JsonResult(ex.Message)),
+                    _ => BadRequest(new JsonResult(ex.Message)),
+                };
             }
         }
         #endregion
@@ -97,7 +97,11 @@ namespace BBIS_API.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                switch (ex.Message)
+                {
+                    case "Sell does not exist": return NotFound(new JsonResult(ex.Message));
+                    default: return BadRequest(new JsonResult(ex.Message));
+                }
             }
         }
 
@@ -110,25 +114,30 @@ namespace BBIS_API.Controllers
                 var productExists = await DbAccessClass.ProductIDExists(productID, _context);
 
                 if (!productExists)
-                    throw new Exception("Not Found");
+                    throw new Exception("Product not found");
 
                 var product = await DbAccessClass.GetProduct(productID, _context);
                 var stockAvailability = product.StockAmount - preSubtotal.Quantity;
 
                 if (stockAvailability < 0)
-                    throw new Exception("Not enough quantity available in stock");
+                    throw new Exception("Not enough quantity available");
 
                 var subtotal = product.SellPrice * preSubtotal.Quantity;
 
                 if (product.Returnable && preSubtotal.ContainerReturned)
-                    subtotal = await DbAccessClass.CalculateSubtotal(subtotal, product.Discount);
+                    subtotal = DbAccessClass.CalculateSubtotal(subtotal, product.Discount);
 
-                return Ok(Math.Round(subtotal, 2));
+                return Ok(new JsonResult(subtotal));
 
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return ex.Message switch
+                {
+                    "Product not found" => NotFound(new JsonResult(ex.Message)),
+                    "Not enough quantity available in stock" => StatusCode(417, new JsonResult(ex.Message)),
+                    _ => BadRequest(new JsonResult(ex.Message)),
+                };
             }
         }
 
@@ -144,16 +153,20 @@ namespace BBIS_API.Controllers
                 var sellExists = await DbAccessClass.SellIDExists(sellUpdate.SellID, _context);
 
                 if (!sellExists)
-                    throw new Exception("Not done");
+                    throw new Exception("Sell not found");
 
                 var sell = await DbAccessClass.GetSell(sellUpdate.SellID, _context);
                 await DbAccessClass.UpdateSell(sellUpdate, sell, _context);
 
-                return Ok("200");
+                return Ok(new JsonResult("Sell updated successfully"));
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return ex.Message switch
+                {
+                    "Sell not found" => NotFound(new JsonResult(ex.Message)),
+                    _ => BadRequest(new JsonResult(ex.Message)),
+                };
             }
         }
         #endregion
@@ -168,18 +181,21 @@ namespace BBIS_API.Controllers
                 var sellExists = await DbAccessClass.SellIDExists(sellID, _context);
 
                 if (!sellExists)
-                    throw new Exception("Not done");
+                    throw new Exception("Sell not found");
 
                 var sell = await DbAccessClass.GetSell(sellID, _context);
-                var product = await DbAccessClass.GetProduct(sell.Product.ProductID, _context);
 
                 await DbAccessClass.DeleteSell(sell, _context);
 
-                return Ok("200");
+                return Ok(new JsonResult("Sell deleted successfully"));
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return ex.Message switch
+                {
+                    "Sell not found" => NotFound(new JsonResult(ex.Message)),
+                    _ => BadRequest(new JsonResult(ex.Message)),
+                };
             }
         }
         #endregion

@@ -36,4 +36,14 @@ namespace BBIS_API.Models
         public ProductGet Product { get; set; }
         public OrderGet() { OrderDate = DateTime.Now.Date; }
     }
+
+    public class OrderUpdate
+    {
+        [Required]
+        public long OrderID { get; set; }
+        public decimal TotalCost { get; set; }
+        public int QuantityOrdered { get; set; }
+        public DateTime OrderDate { get; set; }
+        public OrderUpdate() { OrderDate = DateTime.Now.Date; }
+    }
 }

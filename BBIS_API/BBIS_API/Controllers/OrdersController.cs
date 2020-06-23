@@ -31,7 +31,7 @@ namespace BBIS_API.Controllers
                 var productExists = await DbAccessClass.ProductIDExists(productID, _context);
 
                 if (!productExists)
-                    throw new Exception("Product does not exist");
+                    throw new Exception("Product not found");
 
                 var product = await DbAccessClass.GetProduct(productID, _context);
                 var orderExits = await DbAccessClass.OrderExists(product.ProductID, _context);
@@ -42,12 +42,17 @@ namespace BBIS_API.Controllers
                 var newOrder = DbAccessClass.AddOrder(orderItem, product, _context);
 
                 //If this return does not work just do Ok(newOrder); and make the AddOrder into a Task which returns a OrderItem
-                return CreatedAtAction("GetOrder", new { id = orderItem.OrderID }, Ok("200"));
+                return CreatedAtAction("GetOrder", new { id = orderItem.OrderID }, Ok(new JsonResult("Order added successfully")));
 
             }
             catch (Exception ex)
             {
-                return Ok(ex.Message);
+                return ex.Message switch
+                {
+                    "Product not found" => NotFound(new JsonResult(ex.Message)),
+                    "Order already exists" => StatusCode(422, new JsonResult(ex.Message)),
+                    _ => BadRequest(ex.Message),
+                };
             }
         }
         #endregion
@@ -57,9 +62,16 @@ namespace BBIS_API.Controllers
         [ActionName("ListOrders")]
         public async Task<ActionResult<IEnumerable<OrderItem>>> ListOrderItems()
         {
-            var orders = await DbAccessClass.ListOrders(_context);
+            try
+            {
+                var orders = await DbAccessClass.ListOrders(_context);
 
-            return Ok(_mapper.Map<IEnumerable<OrderGet>>(orders));
+                return Ok(_mapper.Map<IEnumerable<OrderGet>>(orders));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpGet]
@@ -71,7 +83,7 @@ namespace BBIS_API.Controllers
                 var orderExists = await DbAccessClass.OrderIDExists(orderID, _context);
 
                 if (!orderExists)
-                    throw new Exception("This order does not exist");
+                    throw new Exception("Order does not exist");
 
                 var getOrder = await DbAccessClass.GetOrder(orderID, _context);
 
@@ -79,7 +91,11 @@ namespace BBIS_API.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return ex.Message switch
+                {
+                    "Order does not exist" => NotFound(ex.Message),
+                    _ => BadRequest(ex.Message),
+                };
             }
         }
         #endregion
@@ -87,23 +103,28 @@ namespace BBIS_API.Controllers
         #region HTTPPut UpdateOrder
         [HttpPut]
         [ActionName("UpdateOrder")]
-        public async Task<IActionResult> PutOrderItem([FromBody]OrderItem orderItem)
+        public async Task<IActionResult> PutOrderItem([FromBody]OrderUpdate orderUpdate)
         {
             try
             {
-                await DbAccessClass.UpdateOrder(orderItem, _context);
-                return Ok("200");
+                var orderExists = await DbAccessClass.OrderIDExists(orderUpdate.OrderID, _context);
+
+                if (!orderExists)
+                    throw new Exception("Order does not exist");
+
+                var order = await DbAccessClass.GetOrder(orderUpdate.OrderID, _context);
+
+                await DbAccessClass.UpdateOrder(orderUpdate, order, _context);
+
+                return Ok("Order updated successfully");
             }
             catch (Exception ex)
             {
-                if (!await DbAccessClass.ProductIDExists(orderItem.OrderID, _context))
+                return ex.Message switch
                 {
-                    return NotFound();
-                }
-                else
-                {
-                    return BadRequest(ex.Message);
-                }
+                    "Order does not exist" => NotFound(ex.Message),
+                    _ => BadRequest(ex.Message),
+                };
             }
         }
         #endregion
@@ -113,17 +134,28 @@ namespace BBIS_API.Controllers
         [ActionName("EliminateOrder")]
         public async Task<ActionResult> DeleteOrder([FromBody]long orderID)
         {
-            var orderExists = await DbAccessClass.OrderIDExists(orderID, _context);
+            try
+            {
+                var orderExists = await DbAccessClass.OrderIDExists(orderID, _context);
 
-            if (!orderExists)
-                return BadRequest("Not done");
+                if (!orderExists)
+                    throw new Exception("Order does not exist");
 
-            var order = await DbAccessClass.GetOrder(orderID, _context);
-            var product = await DbAccessClass.GetProduct(order.Product.ProductID, _context);
-            System.Diagnostics.Debug.WriteLine("THIS IS THE PRODUCT IS FOR THIS ORDER " + product);
-            await DbAccessClass.DeleteOrder(order, _context);
+                var order = await DbAccessClass.GetOrder(orderID, _context);
 
-            return Ok("200");
+                await DbAccessClass.DeleteOrder(order, _context);
+
+                return Ok(new JsonResult("Order deleted successfully"));
+            }
+            catch (Exception ex)
+            {
+
+                return ex.Message switch
+                {
+                    "Order does not exist" => NotFound(new JsonResult(ex.Message)),
+                    _ => BadRequest(new JsonResult(ex.Message)),
+                };
+            }
         }
         #endregion
     }
