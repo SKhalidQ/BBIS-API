@@ -37,11 +37,10 @@ namespace BBIS_API.Controllers
                 var orderExits = await DbAccessClass.OrderExists(product.ProductID, _context);
 
                 if (orderExits)
-                    throw new Exception("This order already exists");
+                    throw new Exception("Order already exists");
 
                 var newOrder = DbAccessClass.AddOrder(orderItem, product, _context);
 
-                //If this return does not work just do Ok(newOrder); and make the AddOrder into a Task which returns a OrderItem
                 return CreatedAtAction("GetOrder", new { id = orderItem.OrderID }, Ok(new JsonResult("Order added successfully")));
 
             }
@@ -83,7 +82,7 @@ namespace BBIS_API.Controllers
                 var orderExists = await DbAccessClass.OrderIDExists(orderID, _context);
 
                 if (!orderExists)
-                    throw new Exception("Order does not exist");
+                    throw new Exception("Order not found");
 
                 var getOrder = await DbAccessClass.GetOrder(orderID, _context);
 
@@ -93,7 +92,7 @@ namespace BBIS_API.Controllers
             {
                 return ex.Message switch
                 {
-                    "Order does not exist" => NotFound(ex.Message),
+                    "Order not found" => NotFound(ex.Message),
                     _ => BadRequest(ex.Message),
                 };
             }
@@ -110,7 +109,7 @@ namespace BBIS_API.Controllers
                 var orderExists = await DbAccessClass.OrderIDExists(orderUpdate.OrderID, _context);
 
                 if (!orderExists)
-                    throw new Exception("Order does not exist");
+                    throw new Exception("Order not found");
 
                 var order = await DbAccessClass.GetOrder(orderUpdate.OrderID, _context);
 
@@ -122,8 +121,8 @@ namespace BBIS_API.Controllers
             {
                 return ex.Message switch
                 {
-                    "Order does not exist" => NotFound(ex.Message),
-                    _ => BadRequest(ex.Message),
+                    "Order not found" => NotFound(new JsonResult(ex.Message)),
+                    _ => BadRequest(new JsonResult(ex.Message)),
                 };
             }
         }
@@ -139,7 +138,7 @@ namespace BBIS_API.Controllers
                 var orderExists = await DbAccessClass.OrderIDExists(orderID, _context);
 
                 if (!orderExists)
-                    throw new Exception("Order does not exist");
+                    throw new Exception("Order not found");
 
                 var order = await DbAccessClass.GetOrder(orderID, _context);
 
@@ -152,7 +151,7 @@ namespace BBIS_API.Controllers
 
                 return ex.Message switch
                 {
-                    "Order does not exist" => NotFound(new JsonResult(ex.Message)),
+                    "Order not found" => NotFound(new JsonResult(ex.Message)),
                     _ => BadRequest(new JsonResult(ex.Message)),
                 };
             }

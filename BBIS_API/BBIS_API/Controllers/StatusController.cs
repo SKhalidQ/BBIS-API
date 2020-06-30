@@ -27,13 +27,13 @@ namespace BBIS_API.Controllers
             return (status == 200) ? "API is active." : "Internal Server Error";
         }
 
-        [HttpGet]
+        [HttpOptions]
         [ActionName("ClearDatabase")]
-        public async Task<string> ResetDatabase()
+        public async Task<JsonResult> ResetDatabase()
         {
             var status = (await DbAccessClass.ClearDatabase(_context)) ? HttpContext.Response.StatusCode = 200 : HttpContext.Response.StatusCode = 400;
 
-            return (status == 200) ? "Database Cleared" : "Bad Request";
+            return (status == 200) ? new JsonResult("Database Cleared") : new JsonResult("Bad Request");
         }
     }
 }

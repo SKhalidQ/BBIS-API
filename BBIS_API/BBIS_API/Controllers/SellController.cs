@@ -37,15 +37,18 @@ namespace BBIS_API.Controllers
                 var availableStock = product.StockAmount - sellItem.Quantity;
 
                 if (availableStock < 0)
-                    throw new Exception("Not enough quantity available in stock");
+                    throw new Exception("Not enough quantity available");
 
                 var verifyPrice = product.SellPrice * sellItem.Quantity;
                 var verifyWithDiscount = DbAccessClass.CalculateSubtotal(verifyPrice, product.Discount);
 
                 if (sellItem.ContainerReturned && verifyWithDiscount != sellItem.TotalCost)
-                    throw new Exception("Error in total");
+                    throw new Exception("Price does not match subtotal");
                 else if (!sellItem.ContainerReturned && verifyPrice != sellItem.TotalCost)
-                    throw new Exception("Error in total");
+                    throw new Exception("Price does not match subtotal");
+
+                if (sellItem.Payed < 0)
+                    throw new Exception("Payment is required");
 
                 var change = sellItem.Payed - sellItem.TotalCost;
 
@@ -54,15 +57,16 @@ namespace BBIS_API.Controllers
 
                 await DbAccessClass.AddSell(sellItem, product, _context);
 
-                return CreatedAtAction("GetSell", new { id = sellItem.SellID }, new JsonResult("Subtotal: £" + change));
+                return CreatedAtAction("GetSell", new { id = sellItem.SellID }, new JsonResult(change));
             }
             catch (Exception ex)
             {
                 return ex.Message switch
                 {
                     "Product not found" => NotFound(new JsonResult(ex.Message)),
-                    "Not enough quantity available in stock" => StatusCode(417, new JsonResult(ex.Message)),
-                    "Error in total" => StatusCode(409, new JsonResult(ex.Message)),
+                    "Not enough quantity available" => StatusCode(417, new JsonResult(ex.Message)),
+                    "Price does not match subtotal" => StatusCode(409, new JsonResult(ex.Message)),
+                    "Payment is required" => StatusCode(402, new JsonResult(ex.Message)),
                     "Not enough payment" => StatusCode(406, new JsonResult(ex.Message)),
                     _ => BadRequest(new JsonResult(ex.Message)),
                 };
@@ -89,7 +93,7 @@ namespace BBIS_API.Controllers
                 var sellExists = await DbAccessClass.SellIDExists(sellID, _context);
 
                 if (!sellExists)
-                    throw new Exception("This sell does not exists");
+                    throw new Exception("Sale not found");
 
                 var getSell = await DbAccessClass.GetSell(sellID, _context);
 
@@ -99,7 +103,7 @@ namespace BBIS_API.Controllers
             {
                 switch (ex.Message)
                 {
-                    case "Sell does not exist": return NotFound(new JsonResult(ex.Message));
+                    case "Sale not found": return NotFound(new JsonResult(ex.Message));
                     default: return BadRequest(new JsonResult(ex.Message));
                 }
             }
@@ -135,7 +139,7 @@ namespace BBIS_API.Controllers
                 return ex.Message switch
                 {
                     "Product not found" => NotFound(new JsonResult(ex.Message)),
-                    "Not enough quantity available in stock" => StatusCode(417, new JsonResult(ex.Message)),
+                    "Not enough quantity available" => StatusCode(417, new JsonResult(ex.Message)),
                     _ => BadRequest(new JsonResult(ex.Message)),
                 };
             }

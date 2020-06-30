@@ -51,9 +51,6 @@ namespace BBIS_API.Models
         public long ProductID { get; set; }
         public bool Returnable { get; set; }
 
-        [Range(-1, 999, ErrorMessage = "Value for {0} must be between {1} and {2}.")]
-        public int StockAmount { get; set; }
-
         [Range(-1, 999.99, ErrorMessage = "Value for {0} must be between {1} and {2}.")]
         public decimal SellPrice { get; set; }
 

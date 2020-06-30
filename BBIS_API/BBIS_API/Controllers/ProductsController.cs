@@ -1,4 +1,5 @@
-﻿using BBIS_API.DbAccess;
+﻿using AutoMapper;
+using BBIS_API.DbAccess;
 using BBIS_API.Models;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -12,10 +13,12 @@ namespace BBIS_API.Controllers
     public class ProductsController : ControllerBase
     {
         private readonly DatabaseContext _context;
+        private readonly IMapper _mapper;
 
-        public ProductsController(DatabaseContext context)
+        public ProductsController(DatabaseContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         #region HTTPPost AddProduct
@@ -30,7 +33,7 @@ namespace BBIS_API.Controllers
                 if (foundProduct)
                     throw new Exception("Product already exists");
 
-                var newProduct = await DbAccessClass.AddProduct(productItem, _context);
+                var newProduct = await DbAccessClass.AddProduct(productItem, _context, _mapper);
 
                 return CreatedAtAction("GetProduct", new { id = newProduct.ProductID }, new JsonResult(Ok("Product added successfully")));
             }
@@ -52,7 +55,7 @@ namespace BBIS_API.Controllers
         {
             try
             {
-                return await DbAccessClass.ListProducts(_context);
+                return await DbAccessClass.ListProducts(_context, _mapper);
             }
             catch (Exception ex)
             {
@@ -66,7 +69,7 @@ namespace BBIS_API.Controllers
         {
             try
             {
-                var productItem = await DbAccessClass.GetOnlyProduct(productID, _context);
+                var productItem = await DbAccessClass.GetOnlyProduct(productID, _context, _mapper);
 
                 if (productItem == null)
                     throw new Exception("Product not found");
@@ -77,7 +80,7 @@ namespace BBIS_API.Controllers
             {
                 return ex.Message switch
                 {
-                    "Product not found" => NotFound(new JsonResult("Product does not exist")),
+                    "Product not found" => NotFound(new JsonResult(ex.Message)),
                     _ => BadRequest(new JsonResult(ex.Message)),
                 };
             }

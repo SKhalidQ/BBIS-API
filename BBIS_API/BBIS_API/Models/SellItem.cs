@@ -41,6 +41,7 @@ namespace BBIS_API.Models
         public int Quantity { get; set; }
         public decimal TotalCost { get; set; }
         public bool ContainerReturned { get; set; }
+        public decimal Payed { get; set; }
         public DateTime SellDate { get; private set; }
         public ProductGet Product { get; set; }
         public SellGet() { SellDate = DateTime.Now; }

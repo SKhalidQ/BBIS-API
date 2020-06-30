@@ -1,4 +1,5 @@
-﻿using BBIS_API.Models;
+﻿using AutoMapper;
+using BBIS_API.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -31,7 +32,7 @@ namespace BBIS_API.DbAccess
         #endregion
 
         #region Product
-        public static async Task<ProductItem> AddProduct(ProductItem productItem, DatabaseContext _context)
+        public static async Task<ProductItem> AddProduct(ProductItem productItem, DatabaseContext _context, IMapper _mapper)
         {
             _context.ProductItems.Add(productItem);
             await _context.SaveChangesAsync();
@@ -44,30 +45,17 @@ namespace BBIS_API.DbAccess
             return await _context.ProductItems.FindAsync(productID);
         }
 
-        public static async Task<ProductGet> GetOnlyProduct(long productID, DatabaseContext _context)
+        public static async Task<ProductGet> GetOnlyProduct(long productID, DatabaseContext _context, IMapper _mapper)
         {
             var product = await _context.ProductItems.FindAsync(productID);
 
-            return GetSecretProduct(product);
+            return _mapper.Map<ProductGet>(product);
         }
 
-        public static async Task<ActionResult<IEnumerable<ProductGet>>> ListProducts(DatabaseContext _context)
+        public static async Task<ActionResult<IEnumerable<ProductGet>>> ListProducts(DatabaseContext _context, IMapper _mapper)
         {
-            return await _context.ProductItems.Select(x => GetSecretProduct(x)).ToListAsync();
+            return await _context.ProductItems.Select(x => _mapper.Map<ProductGet>(x)).ToListAsync();
         }
-
-        private static ProductGet GetSecretProduct(ProductItem productItem) => new ProductGet
-        {
-            ProductID = productItem.ProductID,
-            Brand = productItem.Brand,
-            Flavour = productItem.Flavour,
-            Alcoholic = productItem.Alcoholic,
-            ContainerType = productItem.ContainerType,
-            Returnable = productItem.Returnable,
-            StockAmount = productItem.StockAmount,
-            SellPrice = productItem.SellPrice,
-            Discount = productItem.Discount
-        };
 
         public static async Task UpdateProduct(ProductUpdate updatedProduct, ProductItem productItem, DatabaseContext _context)
         {
@@ -75,8 +63,6 @@ namespace BBIS_API.DbAccess
                 productItem.SellPrice = updatedProduct.SellPrice;
             if (updatedProduct.Discount != -1)
                 productItem.Discount = updatedProduct.Discount;
-            if (updatedProduct.StockAmount != -1)
-                productItem.StockAmount = updatedProduct.StockAmount;
 
             productItem.Returnable = updatedProduct.Returnable;
 
@@ -142,7 +128,7 @@ namespace BBIS_API.DbAccess
                     orderItem.Product.StockAmount -= updatedOrder.QuantityOrdered;
                 else
                     orderItem.Product.StockAmount += updatedOrder.QuantityOrdered;
-                
+
                 orderItem.QuantityOrdered = updatedOrder.QuantityOrdered;
             }
 
@@ -189,6 +175,7 @@ namespace BBIS_API.DbAccess
             {
                 Quantity = sellItem.Quantity,
                 TotalCost = sellItem.TotalCost,
+                Payed = sellItem.Payed,
                 ContainerReturned = sellItem.ContainerReturned
             });
 
