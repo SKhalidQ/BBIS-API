@@ -23,7 +23,7 @@ namespace BBIS_API.Models
 
         public ProductItem Product { get; set; }
 
-        public OrderItem() { OrderDate = DateTime.Now.Date; }
+        public OrderItem() { OrderDate = DateTime.Now; }
     }
 
     public class OrderGet

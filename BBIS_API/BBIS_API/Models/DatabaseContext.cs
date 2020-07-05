@@ -13,5 +13,7 @@ namespace BBIS_API.Models
         public DbSet<OrderItem> OrderItems { get; set; }
 
         public DbSet<SellItem> SellItems { get; set; }
+
+        public DbSet<User> UserItems { get; set; }
     }
 }

@@ -16,7 +16,7 @@ namespace BBIS_API.Migrations
                     Brand = table.Column<string>(maxLength: 50, nullable: false),
                     Flavour = table.Column<string>(maxLength: 60, nullable: false),
                     Alcoholic = table.Column<bool>(nullable: false),
-                    ContainerType = table.Column<string>(maxLength: 10, nullable: false),
+                    ContainerType = table.Column<string>(maxLength: 20, nullable: false),
                     Returnable = table.Column<bool>(nullable: false),
                     StockAmount = table.Column<int>(nullable: false),
                     SellPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
@@ -25,6 +25,19 @@ namespace BBIS_API.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ProductItems", x => x.ProductID);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserItems",
+                columns: table => new
+                {
+                    UserID = table.Column<Guid>(nullable: false),
+                    UserName = table.Column<string>(maxLength: 30, nullable: false),
+                    Password = table.Column<string>(maxLength: 20, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserItems", x => x.UserID);
                 });
 
             migrationBuilder.CreateTable(
@@ -91,6 +104,9 @@ namespace BBIS_API.Migrations
 
             migrationBuilder.DropTable(
                 name: "SellItems");
+
+            migrationBuilder.DropTable(
+                name: "UserItems");
 
             migrationBuilder.DropTable(
                 name: "ProductItems");

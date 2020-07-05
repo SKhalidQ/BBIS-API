@@ -20,11 +20,11 @@ namespace BBIS_API.Controllers
 
         [HttpGet]
         [ActionName("CurrentStatus")]
-        public async Task<string> Options()
+        public async Task<JsonResult> Options()
         {
             var status = (await DbAccessClass.DatabaseCheck(_context)) ? HttpContext.Response.StatusCode = 200 : HttpContext.Response.StatusCode = 500;
 
-            return (status == 200) ? "API is active." : "Internal Server Error";
+            return (status == 200) ? new JsonResult("API is active") : new JsonResult("Internal Server Error");
         }
 
         [HttpOptions]

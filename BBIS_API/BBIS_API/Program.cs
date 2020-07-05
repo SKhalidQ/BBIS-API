@@ -25,24 +25,22 @@ namespace BBIS_API
                 webBuilder.UseStartup<Startup>();
             });
 
-        public static void DebugDatabase()
+        private static void DebugDatabase()
         {
-            using (var context = new DatabaseContext())
+            using var context = new DatabaseContext();
+            ProductItem Product = new ProductItem()
             {
-                ProductItem Product = new ProductItem()
-                {
-                    Brand = "Heineken",
-                    Flavour = "0,0",
-                    Alcoholic = true,
-                    ContainerType = "Bottle",
-                    Returnable = true,
-                    StockAmount = 125,
-                    SellPrice = Convert.ToDecimal(0.12),
-                    Discount = 0
-                };
-                context.ProductItems.Add(Product);
-                context.SaveChanges();
-            }
+                Brand = "Heineken",
+                Flavour = "0,0",
+                Alcoholic = true,
+                ContainerType = "Bottle",
+                Returnable = true,
+                StockAmount = 125,
+                SellPrice = Convert.ToDecimal(1.75),
+                Discount = 0
+            };
+            context.ProductItems.Add(Product);
+            context.SaveChanges();
         }
     }
 }

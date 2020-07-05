@@ -289,7 +289,6 @@ C:\Users\skq09\Documents\GitHub\BBIS-API\BBIS_API\BBIS_API\obj\Debug\netcoreapp3
 C:\Users\skq09\Documents\GitHub\BBIS-API\BBIS_API\BBIS_API\obj\Debug\netcoreapp3.1\staticwebassets\BBIS_API.StaticWebAssets.xml
 C:\Users\skq09\Documents\GitHub\BBIS-API\BBIS_API\BBIS_API\obj\Debug\netcoreapp3.1\BBIS_API.dll
 C:\Users\skq09\Documents\GitHub\BBIS-API\BBIS_API\BBIS_API\obj\Debug\netcoreapp3.1\BBIS_API.pdb
-C:\Users\skq09\Documents\GitHub\BBIS-API\BBIS_API\BBIS_API\obj\Debug\netcoreapp3.1\BBIS_API.csprojAssemblyReference.cache
 C:\Users\skq09\Documents\GitHub\BBIS-API\BBIS_API\BBIS_API\bin\Debug\netcoreapp3.1\BBIS_API.deps.json
 C:\Users\skq09\Documents\GitHub\BBIS-API\BBIS_API\BBIS_API\bin\Debug\netcoreapp3.1\BBIS_API.runtimeconfig.json
 C:\Users\skq09\Documents\GitHub\BBIS-API\BBIS_API\BBIS_API\bin\Debug\netcoreapp3.1\BBIS_API.runtimeconfig.dev.json
@@ -298,3 +297,4 @@ C:\Users\skq09\Documents\GitHub\BBIS-API\BBIS_API\BBIS_API\obj\Debug\netcoreapp3
 C:\Users\skq09\Documents\GitHub\BBIS-API\BBIS_API\BBIS_API\obj\Debug\netcoreapp3.1\BBIS_API.csproj.CoreCompileInputs.cache
 C:\Users\skq09\Documents\GitHub\BBIS-API\BBIS_API\BBIS_API\obj\Debug\netcoreapp3.1\BBIS_API.MvcApplicationPartsAssemblyInfo.cs
 C:\Users\skq09\Documents\GitHub\BBIS-API\BBIS_API\BBIS_API\obj\Debug\netcoreapp3.1\BBIS_API.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\skq09\Documents\GitHub\BBIS-API\BBIS_API\BBIS_API\obj\Debug\netcoreapp3.1\BBIS_API.csprojAssemblyReference.cache

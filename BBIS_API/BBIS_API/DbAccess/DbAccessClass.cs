@@ -14,20 +14,37 @@ namespace BBIS_API.DbAccess
         #region APIStatus Check
         public static async Task<bool> DatabaseCheck(DatabaseContext _context)
         {
-            _context.Database.EnsureCreated();
+            try
+            {
+                _context.Database.EnsureCreated();
 
-            var isConected = await _context.Database.CanConnectAsync();
+                var isConected = await _context.Database.CanConnectAsync();
+                var createAdmin = await AddAdminUser(_context);
 
-            return (isConected) ? true : false;
+                return (isConected) ? true : throw new Exception();
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
 
         public static async Task<bool> ClearDatabase(DatabaseContext _context)
         {
-            var deleteDatabase = await _context.Database.EnsureDeletedAsync();
-            var createDatabase = await _context.Database.EnsureCreatedAsync();
-            var isConnected = await _context.Database.CanConnectAsync();
+            try
+            {
+                var deleteDatabase = await _context.Database.EnsureDeletedAsync();
+                var createDatabase = await _context.Database.EnsureCreatedAsync();
+                var isConnected = await _context.Database.CanConnectAsync();
 
-            return (deleteDatabase && createDatabase && isConnected) ? true : false;
+                var createAdmin = await AddAdminUser(_context);
+
+                return (deleteDatabase && createDatabase && isConnected && createAdmin) ? true : throw new Exception();
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
         #endregion
 
@@ -73,6 +90,10 @@ namespace BBIS_API.DbAccess
 
         public static async Task<bool> DeleteProduct(ProductItem productItem, DatabaseContext _context)
         {
+
+            _context.RemoveRange(_context.OrderItems.Where(x => x.Product.ProductID == productItem.ProductID));
+            _context.RemoveRange(_context.SellItems.Where(x => x.Product.ProductID == productItem.ProductID));
+
             _context.ProductItems.Remove(productItem);
             await _context.SaveChangesAsync();
 
@@ -164,7 +185,7 @@ namespace BBIS_API.DbAccess
         public static async Task<bool> OrderExists(long productID, DatabaseContext _context)
         {
             return await _context.OrderItems.AnyAsync(x => x.Product.ProductID == productID
-                                                        && x.OrderDate == DateTime.Now);
+                                                        && x.OrderDate == DateTime.Now.Date);
         }
         #endregion
 
@@ -235,6 +256,84 @@ namespace BBIS_API.DbAccess
             subtotal *= (1 - ((decimal)discount / 100));
 
             return Math.Round(subtotal, 2);
+        }
+        #endregion
+
+        #region User
+        public static async Task<bool> VerifyUser(string username, string password, DatabaseContext _context)
+        {
+            try
+            {
+                IQueryable<User> userQuery = from user
+                                             in _context.UserItems
+                                             where user.UserName == username
+                                             && user.Password == password
+                                             select user;
+
+                User selectedUser = await userQuery.FirstOrDefaultAsync();
+
+                return (selectedUser == null) ? false : true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return false;
+            }
+            //await Task.WhenAll();
+            //return false;
+        }
+
+        private static async Task<bool> AddAdminUser(DatabaseContext _context)
+        {
+            try
+            {
+                User User = new User()
+                {
+                    UserID = new Guid(),
+                    UserName = "Admin",
+                    Password = "@dm1n"
+                };
+
+                var userExists = await VerifyUser(User.UserName, User.Password, _context);
+
+                if (!userExists)
+                {
+                    await _context.UserItems.AddAsync(User);
+                    await _context.SaveChangesAsync();
+                }
+
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        public static async Task<bool> ChangePassword(GetUser User, string newPassword, DatabaseContext _context)
+        {
+            try
+            {
+                IQueryable<User> userQuery = from user
+                             in _context.UserItems
+                                             where user.UserName == User.UserName
+                                             && user.Password == User.Password
+                                             select user;
+
+                User selectedUser = await userQuery.FirstOrDefaultAsync();
+
+                selectedUser.Password = newPassword;
+
+                _context.Entry(selectedUser).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+
+                return true;
+
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
         #endregion
     }

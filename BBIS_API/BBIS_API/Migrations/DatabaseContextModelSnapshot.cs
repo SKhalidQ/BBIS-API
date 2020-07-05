@@ -62,8 +62,8 @@ namespace BBIS_API.Migrations
 
                     b.Property<string>("ContainerType")
                         .IsRequired()
-                        .HasColumnType("nvarchar(10)")
-                        .HasMaxLength(10);
+                        .HasColumnType("nvarchar(20)")
+                        .HasMaxLength(20);
 
                     b.Property<int>("Discount")
                         .HasColumnType("int");
@@ -117,6 +117,27 @@ namespace BBIS_API.Migrations
                     b.HasIndex("ProductID");
 
                     b.ToTable("SellItems");
+                });
+
+            modelBuilder.Entity("BBIS_API.Models.User", b =>
+                {
+                    b.Property<Guid>("UserID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(20)")
+                        .HasMaxLength(20);
+
+                    b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(30)")
+                        .HasMaxLength(30);
+
+                    b.HasKey("UserID");
+
+                    b.ToTable("UserItems");
                 });
 
             modelBuilder.Entity("BBIS_API.Models.OrderItem", b =>

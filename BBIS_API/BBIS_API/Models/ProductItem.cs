@@ -22,7 +22,7 @@ namespace BBIS_API.Models
         public bool Alcoholic { get; set; }
 
         [Required]
-        [StringLength(10, ErrorMessage = "Value for {0} has a max limit of {1} characters.")]
+        [StringLength(20, ErrorMessage = "Value for {0} has a max limit of {1} characters.")]
         public string ContainerType { get; set; }
 
         [Required]
