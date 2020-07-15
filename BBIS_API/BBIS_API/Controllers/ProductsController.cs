@@ -33,9 +33,12 @@ namespace BBIS_API.Controllers
                 if (foundProduct)
                     throw new Exception("Product already exists");
 
+                if (productItem.Discount > 100 || productItem.Discount < 0)
+                    throw new Exception("Percentage out of range");
+
                 var newProduct = await DbAccessClass.AddProduct(productItem, _context, _mapper);
 
-                return CreatedAtAction("GetProduct", new { id = newProduct.ProductID }, new JsonResult(Ok("Product added successfully")));
+                return CreatedAtAction("GetProduct", new { id = newProduct.ProductID }, Ok("Product added successfully"));
             }
             catch (Exception ex)
             {

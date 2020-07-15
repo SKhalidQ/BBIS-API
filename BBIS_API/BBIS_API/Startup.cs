@@ -25,7 +25,7 @@ namespace BBIS_API
             if (Configuration.GetValue<bool>("inMemoryDb"))
                 services.AddDbContext<DatabaseContext>(opt => opt.UseInMemoryDatabase("InMemoryDatabase"));
             else
-                services.AddDbContext<DatabaseContext>(opt => opt.UseSqlServer(Configuration.GetConnectionString("localDatabase")));
+                services.AddDbContext<DatabaseContext>(opt => opt.UseSqlServer(Configuration.GetConnectionString("DefaultLocalDB")));
 
             services.AddControllers();
             services.AddControllersWithViews().AddNewtonsoftJson(options =>

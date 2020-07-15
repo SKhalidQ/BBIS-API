@@ -17,15 +17,15 @@ namespace BBIS_API.Controllers
             _context = context;
         }
 
-        [HttpOptions]
+        [HttpPost]
         [ActionName("VerifyUser")]
-        public async Task<ActionResult<string>> CheckUser([FromHeader]string Username, [FromHeader]string Password)
+        public async Task<ActionResult<string>> CheckUser([FromBody]GetUser user)
         {
             try
             {
-                var userExists = await DbAccessClass.VerifyUser(Username, Password, _context);
+                var userExists = await DbAccessClass.VerifyUser(user.Username, user.Password, _context);
 
-                return userExists ? Ok(new JsonResult("User Verified")) : throw new Exception("User not verified");
+                return userExists ? Ok(new JsonResult($"Welcome {user.Username}")) : throw new Exception("User not verified");
 
                 //await Task.WhenAll();
 
@@ -43,13 +43,13 @@ namespace BBIS_API.Controllers
             }
         }
 
-        [HttpOptions]
+        [HttpPost]
         [ActionName("ChangePassword")]
         public async Task<ActionResult<string>> ChangePassword([FromBody]GetUser user, [FromHeader]string password)
         {
             try
             {
-                var userExists = await DbAccessClass.VerifyUser(user.UserName, user.Password, _context);
+                var userExists = await DbAccessClass.VerifyUser(user.Username, user.Password, _context);
 
                 if (!userExists)
                     throw new Exception();

@@ -33,7 +33,7 @@ namespace BBIS_API.Controllers
         {
             var status = (await DbAccessClass.ClearDatabase(_context)) ? HttpContext.Response.StatusCode = 200 : HttpContext.Response.StatusCode = 400;
 
-            return (status == 200) ? new JsonResult("Database Cleared") : new JsonResult("Bad Request");
+            return (status == 200) ? new JsonResult("API Reset") : new JsonResult("Bad Request");
         }
     }
 }

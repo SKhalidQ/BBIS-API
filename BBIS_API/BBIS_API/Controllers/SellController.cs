@@ -36,6 +36,9 @@ namespace BBIS_API.Controllers
 
                 var availableStock = product.StockAmount - sellItem.Quantity;
 
+                if (product.StockAmount == 0)
+                    throw new Exception("Product out of stock");
+                
                 if (availableStock < 0)
                     throw new Exception("Not enough quantity available");
 
@@ -47,17 +50,17 @@ namespace BBIS_API.Controllers
                 else if (!sellItem.ContainerReturned && verifyPrice != sellItem.TotalCost)
                     throw new Exception("Price does not match subtotal");
 
-                if (sellItem.Payed < 0)
+                if (sellItem.Paid < 0)
                     throw new Exception("Payment is required");
 
-                var change = sellItem.Payed - sellItem.TotalCost;
+                var change = sellItem.Paid - sellItem.TotalCost;
 
                 if (change < 0)
                     throw new Exception("Not enough payment");
 
                 await DbAccessClass.AddSell(sellItem, product, _context);
 
-                return CreatedAtAction("GetSell", new { id = sellItem.SellID }, new JsonResult(change));
+                return CreatedAtAction("GetSell", new { id = sellItem.SellID }, Ok(change));
             }
             catch (Exception ex)
             {
@@ -65,6 +68,7 @@ namespace BBIS_API.Controllers
                 {
                     "Product not found" => NotFound(new JsonResult(ex.Message)),
                     "Not enough quantity available" => StatusCode(417, new JsonResult(ex.Message)),
+                    "Product out of stock" => StatusCode(417, new JsonResult(ex.Message)),
                     "Price does not match subtotal" => StatusCode(409, new JsonResult(ex.Message)),
                     "Payment is required" => StatusCode(402, new JsonResult(ex.Message)),
                     "Not enough payment" => StatusCode(406, new JsonResult(ex.Message)),
@@ -123,8 +127,12 @@ namespace BBIS_API.Controllers
                 var product = await DbAccessClass.GetProduct(productID, _context);
                 var stockAvailability = product.StockAmount - preSubtotal.Quantity;
 
+                if (product.StockAmount == 0)
+                    throw new Exception("Product out of stock");
+                
                 if (stockAvailability < 0)
                     throw new Exception("Not enough quantity available");
+                
 
                 var subtotal = product.SellPrice * preSubtotal.Quantity;
 
@@ -140,6 +148,7 @@ namespace BBIS_API.Controllers
                 {
                     "Product not found" => NotFound(new JsonResult(ex.Message)),
                     "Not enough quantity available" => StatusCode(417, new JsonResult(ex.Message)),
+                    "Product out of stock" => StatusCode(417, new JsonResult(ex.Message)),
                     _ => BadRequest(new JsonResult(ex.Message)),
                 };
             }

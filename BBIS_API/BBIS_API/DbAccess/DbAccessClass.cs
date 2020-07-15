@@ -109,9 +109,9 @@ namespace BBIS_API.DbAccess
 
         public static async Task<bool> ProductExists(ProductItem product, DatabaseContext _context)
         {
-            return await _context.ProductItems.AnyAsync(x => x.Brand == product.Brand
-                                                          && x.Flavour == product.Flavour
-                                                          && x.ContainerType == product.ContainerType);
+            return await _context.ProductItems.AnyAsync(x => x.Brand.ToLower() == product.Brand.ToLower()
+                                                          && x.Flavour.ToLower() == product.Flavour.ToLower()
+                                                          && x.ContainerType.ToLower() == product.ContainerType.ToLower());
         }
         #endregion
 
@@ -162,6 +162,9 @@ namespace BBIS_API.DbAccess
         {
             try
             {
+                if (orderItem.Product.StockAmount - orderItem.QuantityOrdered < 0)
+                    throw new Exception("Stock amount drops below 0");
+
                 orderItem.Product.StockAmount -= orderItem.QuantityOrdered;
 
                 _context.OrderItems.Remove(orderItem);
@@ -196,7 +199,7 @@ namespace BBIS_API.DbAccess
             {
                 Quantity = sellItem.Quantity,
                 TotalCost = sellItem.TotalCost,
-                Payed = sellItem.Payed,
+                Paid = sellItem.Paid,
                 ContainerReturned = sellItem.ContainerReturned
             });
 
@@ -266,8 +269,30 @@ namespace BBIS_API.DbAccess
             {
                 IQueryable<User> userQuery = from user
                                              in _context.UserItems
-                                             where user.UserName == username
+                                             where user.Username == username
                                              && user.Password == password
+                                             select user;
+
+                User selectedUser = await userQuery.FirstOrDefaultAsync();
+
+                return (selectedUser == null) ? false : true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return false;
+            }
+            //await Task.WhenAll();
+            //return false;
+        }
+
+        public static async Task<bool> UserExists(string username, DatabaseContext _context)
+        {
+            try
+            {
+                IQueryable<User> userQuery = from user
+                                             in _context.UserItems
+                                             where user.Username.ToLower() == username.ToLower()
                                              select user;
 
                 User selectedUser = await userQuery.FirstOrDefaultAsync();
@@ -290,11 +315,11 @@ namespace BBIS_API.DbAccess
                 User User = new User()
                 {
                     UserID = new Guid(),
-                    UserName = "Admin",
+                    Username = "Admin",
                     Password = "@dm1n"
                 };
 
-                var userExists = await VerifyUser(User.UserName, User.Password, _context);
+                var userExists = await UserExists(User.Username, _context);
 
                 if (!userExists)
                 {
@@ -316,7 +341,7 @@ namespace BBIS_API.DbAccess
             {
                 IQueryable<User> userQuery = from user
                              in _context.UserItems
-                                             where user.UserName == User.UserName
+                                             where user.Username == User.Username
                                              && user.Password == User.Password
                                              select user;
 

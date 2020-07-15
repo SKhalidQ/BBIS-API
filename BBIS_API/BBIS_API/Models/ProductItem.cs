@@ -11,11 +11,11 @@ namespace BBIS_API.Models
         public long ProductID { get; set; }
 
         [Required]
-        [StringLength(50, ErrorMessage = "Value for {0} has a max limit of {1} characters.")]
+        [StringLength(20, ErrorMessage = "Value for {0} has a max limit of {1} characters.")]
         public string Brand { get; set; }
 
         [Required]
-        [StringLength(60, ErrorMessage = "Value for {0} has a max limit of {1} characters.")]
+        [StringLength(40, ErrorMessage = "Value for {0} has a max limit of {1} characters.")]
         public string Flavour { get; set; }
 
         [Required]

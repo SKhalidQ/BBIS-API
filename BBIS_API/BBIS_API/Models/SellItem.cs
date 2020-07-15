@@ -24,7 +24,7 @@ namespace BBIS_API.Models
         [Required]
         [Range(0.01, 999.99, ErrorMessage = "Value for {0} must be between {1} and {2}.")]
         [Column(TypeName = "decimal(18,2)")]
-        public decimal Payed { get; set; }
+        public decimal Paid { get; set; }
 
         [Required]
         public DateTime SellDate { get; private set; }
@@ -41,7 +41,7 @@ namespace BBIS_API.Models
         public int Quantity { get; set; }
         public decimal TotalCost { get; set; }
         public bool ContainerReturned { get; set; }
-        public decimal Payed { get; set; }
+        public decimal paid { get; set; }
         public DateTime SellDate { get; private set; }
         public ProductGet Product { get; set; }
         public SellGet() { SellDate = DateTime.Now; }

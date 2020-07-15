@@ -141,7 +141,6 @@ C:\Users\skq09\Documents\GitHub\BBIS-API\BBIS_API\BBIS_API\bin\Release\netcoreap
 C:\Users\skq09\Documents\GitHub\BBIS-API\BBIS_API\BBIS_API\bin\Release\netcoreapp3.1\runtimes\unix\lib\netcoreapp2.0\System.Runtime.Caching.dll
 C:\Users\skq09\Documents\GitHub\BBIS-API\BBIS_API\BBIS_API\bin\Release\netcoreapp3.1\runtimes\win\lib\netcoreapp2.0\System.Runtime.Caching.dll
 C:\Users\skq09\Documents\GitHub\BBIS-API\BBIS_API\BBIS_API\bin\Release\netcoreapp3.1\runtimes\win\lib\netstandard2.0\System.Security.Cryptography.ProtectedData.dll
-C:\Users\skq09\Documents\GitHub\BBIS-API\BBIS_API\BBIS_API\obj\Release\netcoreapp3.1\BBIS_API.csprojAssemblyReference.cache
 C:\Users\skq09\Documents\GitHub\BBIS-API\BBIS_API\BBIS_API\obj\Release\netcoreapp3.1\BBIS_API.csproj.CoreCompileInputs.cache
 C:\Users\skq09\Documents\GitHub\BBIS-API\BBIS_API\BBIS_API\obj\Release\netcoreapp3.1\BBIS_API.MvcApplicationPartsAssemblyInfo.cs
 C:\Users\skq09\Documents\GitHub\BBIS-API\BBIS_API\BBIS_API\obj\Release\netcoreapp3.1\BBIS_API.MvcApplicationPartsAssemblyInfo.cache
@@ -154,3 +153,4 @@ C:\Users\skq09\Documents\GitHub\BBIS-API\BBIS_API\BBIS_API\obj\Release\netcoreap
 C:\Users\skq09\Documents\GitHub\BBIS-API\BBIS_API\BBIS_API\obj\Release\netcoreapp3.1\BBIS_API.dll
 C:\Users\skq09\Documents\GitHub\BBIS-API\BBIS_API\BBIS_API\obj\Release\netcoreapp3.1\BBIS_API.pdb
 C:\Users\skq09\Documents\GitHub\BBIS-API\BBIS_API\BBIS_API\obj\Release\netcoreapp3.1\BBIS_API.genruntimeconfig.cache
+C:\Users\skq09\Documents\GitHub\BBIS-API\BBIS_API\BBIS_API\obj\Release\netcoreapp3.1\BBIS_API.csprojAssemblyReference.cache

@@ -10,7 +10,7 @@ namespace BBIS_API.Models
 
         [Required]
         [StringLength(30, ErrorMessage = "Value for {0} has a max limit of {1} characters.")]
-        public string UserName { get; set; }
+        public string Username { get; set; }
 
         [Required]
         [StringLength(20, ErrorMessage = "Value for {0} has a max limit of {1} characters.")]
@@ -20,7 +20,7 @@ namespace BBIS_API.Models
     public class GetUser
     {
         [Required]
-        public string UserName { get; set; }
+        public string Username { get; set; }
 
         [Required]
         public string Password { get; set; }

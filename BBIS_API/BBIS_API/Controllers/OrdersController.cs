@@ -41,7 +41,7 @@ namespace BBIS_API.Controllers
 
                 var newOrder = DbAccessClass.AddOrder(orderItem, product, _context);
 
-                return CreatedAtAction("GetOrder", new { id = orderItem.OrderID }, Ok(new JsonResult("Order added successfully")));
+                return CreatedAtAction("GetOrder", new { id = orderItem.OrderID }, Ok("Order added successfully"));
 
             }
             catch (Exception ex)
