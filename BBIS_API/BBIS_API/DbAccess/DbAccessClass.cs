@@ -162,7 +162,7 @@ namespace BBIS_API.DbAccess
             try
             {
                 if (orderItem.Product.StockAmount - orderItem.QuantityOrdered < 0)
-                    throw new Exception("Stock amount drops below 0");
+                    throw new Exception();
 
                 orderItem.Product.StockAmount -= orderItem.QuantityOrdered;
 

@@ -157,7 +157,10 @@ namespace BBIS_API.Controllers
 
                 var order = await DbAccessClass.GetOrder(orderID, _context);
 
-                await DbAccessClass.DeleteOrder(order, _context);
+                var deleted = await DbAccessClass.DeleteOrder(order, _context);
+
+                if (!deleted)
+                    throw new Exception("Stock amount drops below 0");
 
                 return Ok(new JsonResult("Order deleted successfully"));
             }

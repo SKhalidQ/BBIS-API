@@ -146,7 +146,10 @@ namespace BBIS_API.Controllers
                     throw new Exception("Product not found");
 
                 var product = await DbAccessClass.GetProduct(productID, _context);
-                await DbAccessClass.DeleteProduct(product, _context);
+                var deleted = await DbAccessClass.DeleteProduct(product, _context);
+
+                if (!deleted)
+                    throw new Exception("Product could not be deleted");
 
                 return Ok(new JsonResult("Product deleted successfully"));
             }

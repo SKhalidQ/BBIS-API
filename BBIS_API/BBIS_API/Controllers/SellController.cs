@@ -223,8 +223,10 @@ namespace BBIS_API.Controllers
                     throw new Exception("Sale not found");
 
                 var sell = await DbAccessClass.GetSell(sellID, _context);
+                var deleted = await DbAccessClass.DeleteSell(sell, _context);
 
-                await DbAccessClass.DeleteSell(sell, _context);
+                if (!deleted)
+                    throw new Exception("Sale could not be deleted");
 
                 return Ok(new JsonResult("Sale deleted successfully"));
             }
