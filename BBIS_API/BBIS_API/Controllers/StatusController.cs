@@ -24,16 +24,16 @@ namespace BBIS_API.Controllers
         {
             var status = (await DbAccessClass.DatabaseCheck(_context)) ? HttpContext.Response.StatusCode = 200 : HttpContext.Response.StatusCode = 500;
 
-            return (status == 200) ? new JsonResult("API is active") : new JsonResult("Internal Server Error");
+            return (status == 200) ? new JsonResult("API is active") : new JsonResult("Internal server error");
         }
 
         [HttpOptions]
         [ActionName("ClearDatabase")]
         public async Task<JsonResult> ResetDatabase()
         {
-            var status = (await DbAccessClass.ClearDatabase(_context)) ? HttpContext.Response.StatusCode = 200 : HttpContext.Response.StatusCode = 400;
+            var status = (await DbAccessClass.ClearDatabase(_context)) ? HttpContext.Response.StatusCode = 200 : HttpContext.Response.StatusCode = 500;
 
-            return (status == 200) ? new JsonResult("API Reset") : new JsonResult("Bad Request");
+            return (status == 200) ? new JsonResult("API Reset") : new JsonResult("Internal server error");
         }
     }
 }

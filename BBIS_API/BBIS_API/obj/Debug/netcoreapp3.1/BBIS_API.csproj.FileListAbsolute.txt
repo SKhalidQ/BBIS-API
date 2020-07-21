@@ -298,3 +298,6 @@ C:\Users\skq09\Documents\GitHub\BBIS-API\BBIS_API\BBIS_API\obj\Debug\netcoreapp3
 C:\Users\skq09\Documents\GitHub\BBIS-API\BBIS_API\BBIS_API\obj\Debug\netcoreapp3.1\BBIS_API.MvcApplicationPartsAssemblyInfo.cs
 C:\Users\skq09\Documents\GitHub\BBIS-API\BBIS_API\BBIS_API\obj\Debug\netcoreapp3.1\BBIS_API.MvcApplicationPartsAssemblyInfo.cache
 C:\Users\skq09\Documents\GitHub\BBIS-API\BBIS_API\BBIS_API\obj\Debug\netcoreapp3.1\BBIS_API.csprojAssemblyReference.cache
+C:\Users\skq09\Documents\GitHub\BBIS-API\BBIS_API\BBIS_API\bin\Debug\netcoreapp3.1\System.Collections.Immutable.dll
+C:\Users\skq09\Documents\GitHub\BBIS-API\BBIS_API\BBIS_API\bin\Debug\netcoreapp3.1\System.Diagnostics.DiagnosticSource.dll
+C:\Users\skq09\Documents\GitHub\BBIS-API\BBIS_API\BBIS_API\bin\Debug\netcoreapp3.1\System.Text.Json.dll

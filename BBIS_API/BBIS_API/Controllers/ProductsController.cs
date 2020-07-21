@@ -44,7 +44,7 @@ namespace BBIS_API.Controllers
             {
                 return ex.Message switch
                 {
-                    "Product already exists" => StatusCode(422, new JsonResult(ex.Message)),
+                    "Product already exists" => Conflict(new JsonResult(ex.Message)),
                     _ => BadRequest(new JsonResult(ex.Message)),
                 };
             }
@@ -68,10 +68,13 @@ namespace BBIS_API.Controllers
 
         [HttpGet]
         [ActionName("GetProduct")]
-        public async Task<ActionResult<ProductGet>> GetProductItem([FromBody]long productID)
+        public async Task<ActionResult<ProductGet>> GetProductItem([FromHeader]long productID)
         {
             try
             {
+                if (productID <= 0)
+                    throw new Exception("One or more validation errors occurred");
+
                 var productItem = await DbAccessClass.GetOnlyProduct(productID, _context, _mapper);
 
                 if (productItem == null)
@@ -84,6 +87,7 @@ namespace BBIS_API.Controllers
                 return ex.Message switch
                 {
                     "Product not found" => NotFound(new JsonResult(ex.Message)),
+                    "One or more validation errors occurred" => UnprocessableEntity(new JsonResult(ex.Message)),
                     _ => BadRequest(new JsonResult(ex.Message)),
                 };
             }
@@ -97,10 +101,16 @@ namespace BBIS_API.Controllers
         {
             try
             {
+                if (productUpdate.ProductID <= 0)
+                    throw new Exception("One or more validation errors occurred");
+
                 var productExists = await DbAccessClass.ProductIDExists(productUpdate.ProductID, _context);
 
                 if (!productExists)
                     throw new Exception("Product not found");
+
+                if (productUpdate.SellPrice < 0.01M && productUpdate.SellPrice != -1)
+                    throw new Exception();
 
                 var product = await DbAccessClass.GetProduct(productUpdate.ProductID, _context);
 
@@ -112,6 +122,7 @@ namespace BBIS_API.Controllers
                 return ex.Message switch
                 {
                     "Product not found" => NotFound(new JsonResult(ex.Message)),
+                    "One or more validation errors occurred" => UnprocessableEntity(new JsonResult(ex.Message)),
                     _ => BadRequest(new JsonResult(ex.Message)),
                 };
             }
@@ -126,6 +137,9 @@ namespace BBIS_API.Controllers
         {
             try
             {
+                if (productID <= 0)
+                    throw new Exception("One or more validation errors occurred");
+
                 var productItem = await DbAccessClass.ProductIDExists(productID, _context);
 
                 if (!productItem)
@@ -141,6 +155,7 @@ namespace BBIS_API.Controllers
                 return ex.Message switch
                 {
                     "Product not found" => NotFound(new JsonResult(ex.Message)),
+                    "One or more validation errors occurred" => UnprocessableEntity(new JsonResult(ex.Message)),
                     _ => BadRequest(new JsonResult(ex.Message)),
                 };
             }

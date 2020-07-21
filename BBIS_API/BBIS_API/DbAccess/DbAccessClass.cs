@@ -143,12 +143,11 @@ namespace BBIS_API.DbAccess
         {
             if (updatedOrder.TotalCost != -1)
                 orderItem.TotalCost = updatedOrder.TotalCost;
+
             if (updatedOrder.QuantityOrdered != -1)
             {
-                if (updatedOrder.QuantityOrdered < orderItem.QuantityOrdered)
-                    orderItem.Product.StockAmount -= updatedOrder.QuantityOrdered;
-                else
-                    orderItem.Product.StockAmount += updatedOrder.QuantityOrdered;
+                orderItem.Product.StockAmount -= orderItem.QuantityOrdered;
+                orderItem.Product.StockAmount += updatedOrder.QuantityOrdered;
 
                 orderItem.QuantityOrdered = updatedOrder.QuantityOrdered;
             }
@@ -188,7 +187,7 @@ namespace BBIS_API.DbAccess
         public static async Task<bool> OrderExists(long productID, DatabaseContext _context)
         {
             return await _context.OrderItems.AnyAsync(x => x.Product.ProductID == productID
-                                                        && x.OrderDate == DateTime.Now.Date);
+                                                        && x.OrderDate/*.Date*/ == DateTime.Now.Date);
         }
         #endregion
 
@@ -241,7 +240,7 @@ namespace BBIS_API.DbAccess
 
         }
 
-        public static async Task UpdateSell(SellItem updateSell, SellItem sellItem, DatabaseContext _context)
+        public static async Task UpdateSell(SellUpdate updateSell, SellItem sellItem, DatabaseContext _context)
         {
             if (updateSell.Quantity != -1)
                 sellItem.Quantity = updateSell.Quantity;
@@ -335,21 +334,32 @@ namespace BBIS_API.DbAccess
             }
         }
 
-        public static async Task<bool> ChangePassword(GetUser User, string newPassword, DatabaseContext _context)
+        public static async Task<User> GetUser(string username, DatabaseContext _context)
         {
             try
             {
-                IQueryable<User> userQuery = from user
-                             in _context.UserItems
-                                             where user.Username == User.Username
-                                             && user.Password == User.Password
-                                             select user;
+                IQueryable<User> userQuery = from User
+                                             in _context.UserItems
+                                             where User.Username == username
+                                             select User;
 
                 User selectedUser = await userQuery.FirstOrDefaultAsync();
 
-                selectedUser.Password = newPassword;
+                return selectedUser;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
 
-                _context.Entry(selectedUser).State = EntityState.Modified;
+        public static async Task<bool> ChangePassword(User User, string newPassword, DatabaseContext _context)
+        {
+            try
+            {
+                User.Password = newPassword;
+
+                _context.Entry(User).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
 
                 return true;
@@ -361,5 +371,7 @@ namespace BBIS_API.DbAccess
             }
         }
         #endregion
+
+
     }
 }

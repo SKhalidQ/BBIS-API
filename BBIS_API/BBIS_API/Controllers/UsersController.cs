@@ -25,7 +25,7 @@ namespace BBIS_API.Controllers
             {
                 var userExists = await DbAccessClass.VerifyUser(user.Username, user.Password, _context);
 
-                return userExists ? Ok(new JsonResult($"Welcome {user.Username}")) : throw new Exception("User not verified");
+                return userExists ? Ok(new JsonResult($"Welcome {user.Username}")) : throw new Exception("Wrong username or password");
 
                 //await Task.WhenAll();
 
@@ -38,28 +38,30 @@ namespace BBIS_API.Controllers
                 return ex.Message switch
                 {
                     "User not verified" => Unauthorized(new JsonResult(ex.Message)),
-                    _ => BadRequest(ex.Message),
+                    _ => BadRequest(new JsonResult(ex.Message)),
                 };
             }
         }
 
         [HttpPost]
         [ActionName("ChangePassword")]
-        public async Task<ActionResult<string>> ChangePassword([FromBody]GetUser user, [FromHeader]string password)
+        public async Task<ActionResult<string>> ChangePassword([FromBody]GetUser _user, [FromHeader]string newPassword)
         {
             try
             {
-                var userExists = await DbAccessClass.VerifyUser(user.Username, user.Password, _context);
+                var userExists = await DbAccessClass.VerifyUser(_user.Username, _user.Password, _context);
 
                 if (!userExists)
-                    throw new Exception();
+                    throw new Exception("Wrong username or password");
 
-                var changePassword = await DbAccessClass.ChangePassword(user, password, _context);
+                var user = await DbAccessClass.GetUser(_user.Username, _context);
+
+                var changePassword = await DbAccessClass.ChangePassword(user, newPassword, _context);
 
                 if (changePassword)
                     return Ok(new JsonResult("Success"));
                 else
-                    throw new Exception("Wrong username or password");
+                    throw new Exception();
             }
             catch (Exception ex)
             {

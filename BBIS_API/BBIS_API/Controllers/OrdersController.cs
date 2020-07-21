@@ -28,6 +28,9 @@ namespace BBIS_API.Controllers
         {
             try
             {
+                if (productID <= 0)
+                    throw new Exception("One or more validation errors occurred");
+
                 var productExists = await DbAccessClass.ProductIDExists(productID, _context);
 
                 if (!productExists)
@@ -49,7 +52,8 @@ namespace BBIS_API.Controllers
                 return ex.Message switch
                 {
                     "Product not found" => NotFound(new JsonResult(ex.Message)),
-                    "Order already exists" => StatusCode(422, new JsonResult(ex.Message)),
+                    "Order already exists" => Conflict(new JsonResult(ex.Message)),
+                    "One or more validation errors occurred" => UnprocessableEntity(new JsonResult(ex.Message)),
                     _ => BadRequest(ex.Message),
                 };
             }
@@ -69,16 +73,19 @@ namespace BBIS_API.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(new JsonResult(ex.Message));
             }
         }
 
         [HttpGet]
         [ActionName("GetOrder")]
-        public async Task<ActionResult> GetOrderItem([FromBody]long orderID)
+        public async Task<ActionResult> GetOrderItem([FromHeader]long orderID)
         {
             try
             {
+                if (orderID <= 0)
+                    throw new Exception("One or more validation errors occurred");
+
                 var orderExists = await DbAccessClass.OrderIDExists(orderID, _context);
 
                 if (!orderExists)
@@ -93,6 +100,7 @@ namespace BBIS_API.Controllers
                 return ex.Message switch
                 {
                     "Order not found" => NotFound(ex.Message),
+                    "One or more validation errors occurred" => UnprocessableEntity(new JsonResult(ex.Message)),
                     _ => BadRequest(ex.Message),
                 };
             }
@@ -106,6 +114,9 @@ namespace BBIS_API.Controllers
         {
             try
             {
+                if (orderUpdate.OrderID <= 0)
+                    throw new Exception("One or more validation errors occurred");
+
                 var orderExists = await DbAccessClass.OrderIDExists(orderUpdate.OrderID, _context);
 
                 if (!orderExists)
@@ -122,6 +133,7 @@ namespace BBIS_API.Controllers
                 return ex.Message switch
                 {
                     "Order not found" => NotFound(new JsonResult(ex.Message)),
+                    "One or more validation errors occurred" => UnprocessableEntity(new JsonResult(ex.Message)),
                     _ => BadRequest(new JsonResult(ex.Message)),
                 };
             }
@@ -135,6 +147,9 @@ namespace BBIS_API.Controllers
         {
             try
             {
+                if (orderID <= 0)
+                    throw new Exception("One or more validation errors occurred");
+
                 var orderExists = await DbAccessClass.OrderIDExists(orderID, _context);
 
                 if (!orderExists)
@@ -152,6 +167,7 @@ namespace BBIS_API.Controllers
                 return ex.Message switch
                 {
                     "Order not found" => NotFound(new JsonResult(ex.Message)),
+                    "One or more validation errors occurred" => UnprocessableEntity(new JsonResult(ex.Message)),
                     _ => BadRequest(new JsonResult(ex.Message)),
                 };
             }

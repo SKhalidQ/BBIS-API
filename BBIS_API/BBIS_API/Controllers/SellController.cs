@@ -28,17 +28,20 @@ namespace BBIS_API.Controllers
         {
             try
             {
+                if (productID <= 0)
+                    throw new Exception("One or more validation errors occurred");
+
                 var productExists = await DbAccessClass.ProductIDExists(productID, _context);
-                var product = await DbAccessClass.GetProduct(productID, _context);
 
                 if (!productExists)
                     throw new Exception("Product not found");
 
+                var product = await DbAccessClass.GetProduct(productID, _context);
                 var availableStock = product.StockAmount - sellItem.Quantity;
 
                 if (product.StockAmount == 0)
                     throw new Exception("Product out of stock");
-                
+
                 if (availableStock < 0)
                     throw new Exception("Not enough quantity available");
 
@@ -67,11 +70,12 @@ namespace BBIS_API.Controllers
                 return ex.Message switch
                 {
                     "Product not found" => NotFound(new JsonResult(ex.Message)),
-                    "Not enough quantity available" => StatusCode(417, new JsonResult(ex.Message)),
                     "Product out of stock" => StatusCode(417, new JsonResult(ex.Message)),
+                    "Not enough quantity available" => StatusCode(417, new JsonResult(ex.Message)),
                     "Price does not match subtotal" => StatusCode(409, new JsonResult(ex.Message)),
                     "Payment is required" => StatusCode(402, new JsonResult(ex.Message)),
                     "Not enough payment" => StatusCode(406, new JsonResult(ex.Message)),
+                    "One or more validation errors occurred" => UnprocessableEntity(new JsonResult(ex.Message)),
                     _ => BadRequest(new JsonResult(ex.Message)),
                 };
             }
@@ -83,17 +87,27 @@ namespace BBIS_API.Controllers
         [ActionName("ListSells")]
         public async Task<ActionResult<IEnumerable<SellItem>>> ListSells()
         {
-            var sell = await DbAccessClass.ListSell(_context);
+            try
+            {
+                var sell = await DbAccessClass.ListSell(_context);
 
-            return Ok(_mapper.Map<IEnumerable<SellGet>>(sell));
+                return Ok(_mapper.Map<IEnumerable<SellGet>>(sell));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new JsonResult(ex.Message));
+            }
         }
 
         [HttpGet]
         [ActionName("GetSell")]
-        public async Task<ActionResult> GetSellItems([FromBody]long sellID)
+        public async Task<ActionResult> GetSellItems([FromHeader]long sellID)
         {
             try
             {
+                if (sellID <= 0)
+                    throw new Exception("One or more validation errors occurred");
+
                 var sellExists = await DbAccessClass.SellIDExists(sellID, _context);
 
                 if (!sellExists)
@@ -105,11 +119,12 @@ namespace BBIS_API.Controllers
             }
             catch (Exception ex)
             {
-                switch (ex.Message)
+                return ex.Message switch
                 {
-                    case "Sale not found": return NotFound(new JsonResult(ex.Message));
-                    default: return BadRequest(new JsonResult(ex.Message));
-                }
+                    "Sale not found" => NotFound(new JsonResult(ex.Message)),
+                    "One or more validation errors occurred" => UnprocessableEntity(new JsonResult(ex.Message)),
+                    _ => BadRequest(new JsonResult(ex.Message)),
+                };
             }
         }
 
@@ -119,6 +134,9 @@ namespace BBIS_API.Controllers
         {
             try
             {
+                if (productID <= 0)
+                    throw new Exception("One or more validation errors occurred");
+
                 var productExists = await DbAccessClass.ProductIDExists(productID, _context);
 
                 if (!productExists)
@@ -129,10 +147,10 @@ namespace BBIS_API.Controllers
 
                 if (product.StockAmount == 0)
                     throw new Exception("Product out of stock");
-                
+
                 if (stockAvailability < 0)
                     throw new Exception("Not enough quantity available");
-                
+
 
                 var subtotal = product.SellPrice * preSubtotal.Quantity;
 
@@ -149,6 +167,7 @@ namespace BBIS_API.Controllers
                     "Product not found" => NotFound(new JsonResult(ex.Message)),
                     "Not enough quantity available" => StatusCode(417, new JsonResult(ex.Message)),
                     "Product out of stock" => StatusCode(417, new JsonResult(ex.Message)),
+                    "One or more validation errors occurred" => UnprocessableEntity(new JsonResult(ex.Message)),
                     _ => BadRequest(new JsonResult(ex.Message)),
                 };
             }
@@ -159,25 +178,29 @@ namespace BBIS_API.Controllers
         #region HTTPPut Update Sell
         [HttpPut]
         [ActionName("UpdateSell")]
-        public async Task<ActionResult> UpdateSell([FromBody]SellItem sellUpdate)
+        public async Task<ActionResult> UpdateSell([FromBody]SellUpdate sellUpdate)
         {
             try
             {
+                if (sellUpdate.SellID <= 0)
+                    throw new Exception("One or more validation errors occurred");
+
                 var sellExists = await DbAccessClass.SellIDExists(sellUpdate.SellID, _context);
 
                 if (!sellExists)
-                    throw new Exception("Sell not found");
+                    throw new Exception("Sale not found");
 
                 var sell = await DbAccessClass.GetSell(sellUpdate.SellID, _context);
                 await DbAccessClass.UpdateSell(sellUpdate, sell, _context);
 
-                return Ok(new JsonResult("Sell updated successfully"));
+                return Ok(new JsonResult("Sale updated successfully"));
             }
             catch (Exception ex)
             {
                 return ex.Message switch
                 {
-                    "Sell not found" => NotFound(new JsonResult(ex.Message)),
+                    "Sale not found" => NotFound(new JsonResult(ex.Message)),
+                    "One or more validation errors occurred" => UnprocessableEntity(new JsonResult(ex.Message)),
                     _ => BadRequest(new JsonResult(ex.Message)),
                 };
             }
@@ -191,22 +214,26 @@ namespace BBIS_API.Controllers
         {
             try
             {
+                if (sellID <= 0)
+                    throw new Exception("One or more validation errors occurred");
+
                 var sellExists = await DbAccessClass.SellIDExists(sellID, _context);
 
                 if (!sellExists)
-                    throw new Exception("Sell not found");
+                    throw new Exception("Sale not found");
 
                 var sell = await DbAccessClass.GetSell(sellID, _context);
 
                 await DbAccessClass.DeleteSell(sell, _context);
 
-                return Ok(new JsonResult("Sell deleted successfully"));
+                return Ok(new JsonResult("Sale deleted successfully"));
             }
             catch (Exception ex)
             {
                 return ex.Message switch
                 {
-                    "Sell not found" => NotFound(new JsonResult(ex.Message)),
+                    "Sale not found" => NotFound(new JsonResult(ex.Message)),
+                    "One or more validation errors occurred" => UnprocessableEntity(new JsonResult(ex.Message)),
                     _ => BadRequest(new JsonResult(ex.Message)),
                 };
             }

@@ -47,9 +47,21 @@ namespace BBIS_API.Models
         public SellGet() { SellDate = DateTime.Now; }
     }
 
+    public class SellUpdate
+    {
+        [Required]
+        public long SellID { get; set; }
+        public int Quantity { get; set; }
+        public decimal TotalCost { get; set; }
+        public bool ContainerReturned { get; set; }
+        public decimal paid { get; set; }
+        public DateTime SellDate { get; private set; }
+    }
+
     public class SellSubtotal
     {
         [Required]
+        [Range(1, 999, ErrorMessage = "Value for {0} must be between {1} and {2}.")]
         public int Quantity { get; set; }
 
         [Required]
