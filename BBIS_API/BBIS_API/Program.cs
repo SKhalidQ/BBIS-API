@@ -2,6 +2,7 @@ using BBIS_API.Models;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using System;
+using System.Threading;
 
 namespace BBIS_API
 {
@@ -22,6 +23,7 @@ namespace BBIS_API
         public static IHostBuilder CreateHostBuilder(string[] args) => Host.CreateDefaultBuilder(args)
             .ConfigureWebHostDefaults(webBuilder =>
             {
+                Thread.Sleep(5000);
                 webBuilder.UseStartup<Startup>();
             });
 
