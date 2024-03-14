@@ -1,0 +1,23 @@
+name: File Manager API Alpha
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build the Docker image
+      working-directory: BBIS_API/BBIS_API
+      run: docker build . -t skhalidqdev/bbis_api:latest
+    - name: Log into Docker Hum
+      uses: docker/login-action@2
+      with:
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_PASSWORD_TOKEN }}
+    - name: Push the images to Docker Hub
+      run: docker push skhalidqdev/bbis_api
