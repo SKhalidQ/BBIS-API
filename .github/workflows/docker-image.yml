@@ -15,7 +15,7 @@ jobs:
       working-directory: BBIS_API/BBIS_API
       run: docker build . -t skhalidqdev/bbis_api:latest
     - name: Log into Docker Hum
-      uses: docker/login-action@2
+      uses: docker/login-action@v2
       with:
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
         password: ${{ secrets.DOCKER_HUB_PASSWORD_TOKEN }}
